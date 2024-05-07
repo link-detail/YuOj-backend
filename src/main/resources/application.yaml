@@ -1,0 +1,35 @@
+#项目端口号
+server:
+  port: 8082
+  servlet:
+    context-path: /api
+
+
+spring:
+  #mysql配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: root
+    url: jdbc:mysql://localhost:3306/yuoj-sql
+
+  #freemarker引擎配置
+  freemarker:
+    check-template-location: false
+    check-template: false
+
+  #swagger配置
+  mvc:
+    pathmatch:
+      matchingStrategy: ant_path_matcher
+
+#mybatis配置
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false #驼峰命名
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  #输出日志配置
+  global-config:
+    db-config:
+      logic-delete-field: isDelete #全局逻辑删除实体类字段名
+      logic-delete-value: 1 #已删除逻辑值 1
+      logic-not-delete-value: 0 #未删除逻辑值 0
