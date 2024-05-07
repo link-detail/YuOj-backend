@@ -1,5 +1,6 @@
 #项目端口号
 server:
+  address: 0.0.0.0
   port: 8082
   servlet:
     context-path: /api
