@@ -14,10 +14,6 @@ spring:
     password: root
     url: jdbc:mysql://localhost:3306/yuoj-sql
 
-  #freemarker引擎配置
-  freemarker:
-    check-template-location: false
-    check-template: false
 
   #swagger配置
   mvc:
