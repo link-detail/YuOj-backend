@@ -12,5 +12,6 @@ CREATE TABLE user(
                      createTime DATETIME DEFAULT CURRENT_TIMESTAMP not NULL COMMENT '创建时间',
                      updateTime DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL ON update CURRENT_TIMESTAMP COMMENT '更新时间',
                      isDelete TINYINT DEFAULT 0 not NULL  COMMENT '是否删除 0/1',
+#                      约束条件
                      CONSTRAINT uni_userAccount UNIQUE (userAccount)
 )COMMENT '用户表'

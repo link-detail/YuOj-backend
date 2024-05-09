@@ -18,21 +18,21 @@ public class ResultUtils {
     /**
      * 失败 --- errorCode
      */
-    public static <T> BaseResponse<T> error(ErrorCode errorCode){
+    public static   BaseResponse  error(ErrorCode errorCode){
         return new BaseResponse<> (errorCode);
     }
 
     /**
      * 失败 --- code,message
      */
-    public static <T> BaseResponse<T> error(int code, String message){
+    public static   BaseResponse  error(int code, String message){
         return new BaseResponse<> (code,null,message);
     }
 
     /**
      * 失败 ---errorCode+message
      */
-    public static <T> BaseResponse<T> error(ErrorCode errorCode,String message){
+    public static   BaseResponse  error(ErrorCode errorCode,String message){
         return new BaseResponse<> (errorCode.getCode (),null,message);
     }
 

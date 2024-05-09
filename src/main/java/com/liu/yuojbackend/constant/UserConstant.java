@@ -13,4 +13,14 @@ public interface UserConstant {
      * 加密盐
      */
     String SALT="liu";
+
+    /**
+     * 登陆用户态
+     */
+    String USER_LOGIN_STATE ="user_login";
+
+    /**
+     * 默认密码 11111111
+     */
+    String DEFAULT_PASSWORD="11111111";
 }
