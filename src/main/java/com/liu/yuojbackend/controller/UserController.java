@@ -1,7 +1,7 @@
 package com.liu.yuojbackend.controller;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.fasterxml.jackson.databind.ser.Serializers;
+import com.liu.yuojbackend.annotation.AuthCheck;
 import com.liu.yuojbackend.common.BaseResponse;
 import com.liu.yuojbackend.common.ErrorCode;
 import com.liu.yuojbackend.common.ResultUtils;
@@ -13,10 +13,8 @@ import com.liu.yuojbackend.model.dto.user.UserRegisterRequest;
 import com.liu.yuojbackend.model.entity.User;
 import com.liu.yuojbackend.model.vo.LoginUserVO;
 import com.liu.yuojbackend.service.UserService;
-import com.sun.jndi.ldap.sasl.SaslInputStream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -113,6 +111,7 @@ public class UserController {
      * 创建用户 --这个操作只允许管理员来执行
      */
     @PostMapping("/add")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Long> addUser(@RequestBody UserAddRequest userAddRequest){
         if (userAddRequest==null){
             throw new BusinessException (ErrorCode.PARAMS_ERROR);

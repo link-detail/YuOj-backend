@@ -1,5 +1,8 @@
 package com.liu.yuojbackend.constant;
 
+import java.security.PrivateKey;
+import java.util.PrimitiveIterator;
+
 /**
  * @Author 刘渠好
  * @Date 2024-05-08 21:06
@@ -23,4 +26,16 @@ public interface UserConstant {
      * 默认密码 11111111
      */
     String DEFAULT_PASSWORD="11111111";
+
+    /**
+     * 权限 admin  user ban
+     */
+
+    String ADMIN_ROLE="admin";
+
+    String BAN_ROLE="ban";
+
+    String USER_ROLE="user";
 }
+
+
