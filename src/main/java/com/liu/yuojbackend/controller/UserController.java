@@ -75,7 +75,7 @@ public class UserController {
             throw new BusinessException (ErrorCode.PARAMS_ERROR,"请正确填写账号信息!");
         }
         LoginUserVO loginUserVO = userService.userLogin (userAccount, userPassword, httpServletRequest);
-        return  ResultUtils.success (loginUserVO);
+        return ResultUtils.success (loginUserVO);
     }
 
     /**

@@ -35,6 +35,8 @@ public class LogInterceptor {
      * 此时这个连接点就是 execution (BaseResponse com.liu.yuojbackend.
      *      * controller.UserController.userLogin(UserLoginRequest,HttpServletRequest),org.apache,catalina,connector...)
      *      所以取请求参数的时候是从连接点取
+     *
+     *    ProceedingJoinPoint is only supported for around advice   ProceedingJoinPoint只适合在Around注解使用
      */
     public Object doInterceptor(ProceedingJoinPoint joinPoint) throws Throwable {
         //计时
@@ -52,9 +54,12 @@ public class LogInterceptor {
         Object[] args = joinPoint.getArgs ();
         String reqParam="["+ StringUtils.join (args,',')+"]";
 
+        //获取目标对象
+        Object target = joinPoint.getTarget ();
 
         //输出请求日志
-        log.info ("request start,id:{},path:{},ip:{},parmas:{}",reqId,requestURI,request.getRemoteHost (),reqParam);
+        log.info ("request start,id:{},path:{},ip:{},parmas:{},target：{}",reqId,requestURI,request.getRemoteHost (),
+                reqParam,target.getClass ().getName ());
 
         //执行原方法(到了这一步之后，就去执行拦截的方法了)
         Object result = joinPoint.proceed ();
@@ -63,6 +68,10 @@ public class LogInterceptor {
         stopWatch.stop ();
         long lastTaskTimeMillis = stopWatch.getLastTaskTimeMillis ();  //运行时间
         log.info ("request end,id:{},cost:{}",reqId, lastTaskTimeMillis);
+        //返回执行结果
+        /**
+         *  当在controller里面执行之后，返回结果并不能接收到，最后的返回结果是从这里返回的
+         */
         return result;
 
 
