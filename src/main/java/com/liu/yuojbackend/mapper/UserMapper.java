@@ -1,8 +1,7 @@
 package com.liu.yuojbackend.mapper;
 
-import com.liu.yuojbackend.model.entity.User;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Mapper;
+import com.liu.yuojbackend.model.entity.User;
 
 /**
 * @author Administrator

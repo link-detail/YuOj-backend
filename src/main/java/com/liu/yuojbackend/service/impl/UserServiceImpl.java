@@ -4,13 +4,18 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.liu.yuojbackend.common.ErrorCode;
+import com.liu.yuojbackend.constant.CommonConstant;
 import com.liu.yuojbackend.constant.UserConstant;
 import com.liu.yuojbackend.exception.BusinessException;
 import com.liu.yuojbackend.mapper.UserMapper;
+import com.liu.yuojbackend.model.dto.user.UserQueryRequest;
 import com.liu.yuojbackend.model.entity.User;
 import com.liu.yuojbackend.model.enums.UserRoleEnum;
 import com.liu.yuojbackend.model.vo.LoginUserVO;
+import com.liu.yuojbackend.model.vo.UserVO;
 import com.liu.yuojbackend.service.UserService;
+import com.liu.yuojbackend.utils.SqlUtils;
+import jdk.management.resource.NotifyingMeter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -166,6 +171,52 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         BeanUtil.copyProperties (user,loginUserVO);
         return loginUserVO;
     }
+
+    /**
+     * 获取用户包装类
+     */
+    @Override
+    public UserVO getUserVO(User user) {
+        if (user==null){
+            return null;
+        }
+        UserVO userVO = new UserVO ();
+        BeanUtil.copyProperties (user,userVO);
+        return userVO;
+    }
+
+    /**
+     * 根据条件查询用户列表
+     * @param userQueryRequest
+     * @return
+     */
+    @Override
+    public QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest) {
+        if (userQueryRequest==null){
+            throw new BusinessException (ErrorCode.PARAMS_ERROR,"请求参数为空!");
+        }
+        Long id = userQueryRequest.getId ();
+        String userName = userQueryRequest.getUserName ();
+        String userProfile = userQueryRequest.getUserProfile ();
+        String userRole = userQueryRequest.getUserRole ();
+        QueryWrapper<User> queryWrapper = new QueryWrapper<> ();
+        //条件查询
+
+        queryWrapper.eq (id>0,"id",id);
+        queryWrapper.like (StringUtils.isNotBlank (userName),"userName",userName);
+        queryWrapper.like (StringUtils.isNotBlank (userProfile),"userProfile",userProfile);
+        queryWrapper.eq (StringUtils.isNotBlank (userRole),"userRole",userRole);
+
+
+        String sortField = userQueryRequest.getSortField ();
+        String sortOrder = userQueryRequest.getSortOrder ();
+
+        //分页
+        queryWrapper.orderBy (SqlUtils.validSortField (sortField),sortOrder.equals (CommonConstant.SORT_ORDER_ASC),sortField);
+        return queryWrapper;
+
+    }
+
 }
 
 

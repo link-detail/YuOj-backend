@@ -1,8 +1,11 @@
 package com.liu.yuojbackend.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.liu.yuojbackend.model.dto.user.UserQueryRequest;
 import com.liu.yuojbackend.model.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.liu.yuojbackend.model.vo.LoginUserVO;
+import com.liu.yuojbackend.model.vo.UserVO;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -36,5 +39,15 @@ public interface UserService extends IService<User> {
      * 获取脱敏之后的数据
      */
     LoginUserVO getLoginUserVO(User user);
+
+    /**
+     * 获取用户包装类 UserVO
+     */
+    UserVO getUserVO(User user);
+
+    /**
+     * 根据条件查询列表用户 wrapper
+     */
+    QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
 
 }
