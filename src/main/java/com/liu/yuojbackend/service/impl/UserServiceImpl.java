@@ -1,22 +1,29 @@
 package com.liu.yuojbackend.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.liu.yuojbackend.YuOjBackendApplication;
 import com.liu.yuojbackend.common.ErrorCode;
 import com.liu.yuojbackend.constant.CommonConstant;
 import com.liu.yuojbackend.constant.UserConstant;
 import com.liu.yuojbackend.exception.BusinessException;
+import com.liu.yuojbackend.exception.ThrowUtils;
 import com.liu.yuojbackend.mapper.UserMapper;
 import com.liu.yuojbackend.model.dto.user.UserQueryRequest;
+import com.liu.yuojbackend.model.dto.user.UserUpdateMyRequest;
 import com.liu.yuojbackend.model.entity.User;
 import com.liu.yuojbackend.model.enums.UserRoleEnum;
 import com.liu.yuojbackend.model.vo.LoginUserVO;
 import com.liu.yuojbackend.model.vo.UserVO;
 import com.liu.yuojbackend.service.UserService;
 import com.liu.yuojbackend.utils.SqlUtils;
+import com.sun.org.apache.xml.internal.resolver.helpers.PublicId;
 import jdk.management.resource.NotifyingMeter;
 import lombok.extern.slf4j.Slf4j;
+import net.sf.jsqlparser.statement.select.Offset;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
@@ -24,9 +31,11 @@ import org.springframework.util.DigestUtils;
 import javax.jws.soap.SOAPBinding;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.PushBuilder;
 
 import java.lang.management.MemoryUsage;
-import java.util.TreeMap;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.liu.yuojbackend.constant.UserConstant.SALT;
 import static com.liu.yuojbackend.constant.UserConstant.USER_LOGIN_STATE;
@@ -202,7 +211,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         QueryWrapper<User> queryWrapper = new QueryWrapper<> ();
         //条件查询
 
-        queryWrapper.eq (id>0,"id",id);
+        queryWrapper.eq (id!=null,"id",id);
         queryWrapper.like (StringUtils.isNotBlank (userName),"userName",userName);
         queryWrapper.like (StringUtils.isNotBlank (userProfile),"userProfile",userProfile);
         queryWrapper.eq (StringUtils.isNotBlank (userRole),"userRole",userRole);
@@ -211,10 +220,104 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         String sortField = userQueryRequest.getSortField ();
         String sortOrder = userQueryRequest.getSortOrder ();
 
-        //分页
+        //分页(必须排序字段满足指定要求，才可以排序)
         queryWrapper.orderBy (SqlUtils.validSortField (sortField),sortOrder.equals (CommonConstant.SORT_ORDER_ASC),sortField);
         return queryWrapper;
 
+
+
+
+
+    }
+
+    /**
+     *用户列表转为用户封装列表
+     */
+    @Override
+    public List<UserVO> getUserVOList(List<User> list) {
+        if (CollUtil.isEmpty (list)){
+            return new ArrayList<> ();
+        }
+//        List<UserVO> userVOS = new ArrayList<> ();
+//        for (User user : list) {
+//            userVOS.add (getUserVO (user));
+//        }
+//        return userVOS;
+
+        return list.stream ().map (this::getUserVO).collect(Collectors.toList());
+    }
+
+    /**
+     * 更新个人信息
+     * @param userUpdateMyRequest
+     * @return
+     */
+    @Override
+    public boolean updateMyUser(UserUpdateMyRequest userUpdateMyRequest,HttpServletRequest request) {
+        if (userUpdateMyRequest==null){
+            throw new BusinessException (ErrorCode.PARAMS_ERROR,"参数有误!");
+        }
+
+        //获取登录用户信息
+        User loginUser = this.getLoginUser (request);
+        Long id = loginUser.getId ();
+
+        String userName = userUpdateMyRequest.getUserName ();
+        String userAvatar = userUpdateMyRequest.getUserAvatar ();
+        String userProfile = userUpdateMyRequest.getUserProfile ();
+        Integer gender = userUpdateMyRequest.getGender ();
+
+
+        //校验参数
+        if (StringUtils.isNotBlank (userName)&&userName.length ()>8){
+            throw new BusinessException (ErrorCode.PARAMS_ERROR,"用户名字过长!");
+        }
+        if (StringUtils.isNotBlank (userProfile)&&userProfile.length ()>100){
+            throw new BusinessException (ErrorCode.PARAMS_ERROR,"用户简介过长!");
+        }
+
+        String userPassword = userUpdateMyRequest.getUserPassword ();
+        String checkPassword = userUpdateMyRequest.getCheckPassword ();
+
+        //更改密码(小技巧 isEmpty主要来验证该字符串是否未null)
+        if (StringUtils.isEmpty (userPassword)||StringUtils.isEmpty (checkPassword)){
+            throw new BusinessException (ErrorCode.PARAMS_ERROR,"密码不能为null!");
+        }
+        if (userPassword.length ()<8||checkPassword.length ()<8){
+            throw new BusinessException (ErrorCode.PARAMS_ERROR,"密码长度过短!");
+        }
+
+        //校验两次密码是否一致
+        if (!userPassword.equals (checkPassword)){
+            throw new BusinessException (ErrorCode.PARAMS_ERROR,"两次密码输入不一致!");
+        }
+
+        //新密码不可以旧密码一致
+        User byId = this.getById (id);
+        String oldUserPassword = byId.getUserPassword ();
+        String md5UserPassword = DigestUtils.md5DigestAsHex ((SALT + userPassword).getBytes ());
+        if (oldUserPassword.equals (md5UserPassword)){
+            throw new BusinessException (ErrorCode.PARAMS_ERROR,"新密码不可以和旧密码一致");
+        }
+        //更新用户
+        User user = new User ();
+        user.setId (id);
+        user.setUserName (userName);
+         user.setUserAvatar (userAvatar);
+        user.setUserProfile (userProfile);
+        user.setGender (gender);
+        user.setUserPassword (md5UserPassword);
+
+        boolean result = this.updateById (user);
+
+
+        ThrowUtils.throwIf (!result,ErrorCode.SYSTEM_ERROR,"操作数据库失败!");
+
+        //更新登录态的信息
+        request.getSession ().removeAttribute (USER_LOGIN_STATE);  //移除之后新加进去
+        request.getSession ().setAttribute (USER_LOGIN_STATE,this.getById (id));
+
+        return result;
     }
 
 }

@@ -17,6 +17,8 @@ import com.liu.yuojbackend.model.enums.UserRoleEnum;
 import com.liu.yuojbackend.model.vo.LoginUserVO;
 import com.liu.yuojbackend.model.vo.UserVO;
 import com.liu.yuojbackend.service.UserService;
+import com.sun.corba.se.spi.ior.IdentifiableFactory;
+import com.sun.org.apache.bcel.internal.generic.NEW;
 import kotlin.math.MathKt;
 import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import java.nio.channels.Pipe;
 import java.util.BitSet;
 import java.util.List;
 
@@ -218,6 +221,48 @@ public class UserController {
         Page<User> page = userService.page (new Page<> (current, pageSize),
                 userService.getQueryWrapper (userQueryRequest));
         return ResultUtils.success (page);
+
+    }
+
+    /**
+     * 分页获取用户封装列表
+     */
+    @PostMapping("/list/page/vo")
+    public BaseResponse<Page<UserVO>> listUserVOByPage(@RequestBody UserQueryRequest userQueryRequest){
+
+        //校验
+        if (userQueryRequest==null){
+            throw new BusinessException (ErrorCode.PARAMS_ERROR);
+        }
+        //获取分页数据
+        long current = userQueryRequest.getCurrent ();
+        long pageSize = userQueryRequest.getPageSize ();
+
+        //限制爬虫
+        ThrowUtils.throwIf (pageSize>20,ErrorCode.PARAMS_ERROR,"你的查询有误！");
+        Page<User> page = userService.page (new Page<> (current, pageSize),
+                userService.getQueryWrapper (userQueryRequest));
+
+        List<UserVO> userVOList = userService.getUserVOList (page.getRecords ());
+        Page<UserVO> userVOPage = new Page<> (current,pageSize,page.getTotal ());
+        return ResultUtils.success (userVOPage.setRecords (userVOList));
+
+    }
+
+    /**
+     * 更新个人信息
+     */
+    @PostMapping("/update/my")
+    public BaseResponse<Boolean> updateMyUser(@RequestBody UserUpdateMyRequest userUpdateMyRequest,HttpServletRequest request){
+        //校验参数
+        if (userUpdateMyRequest==null){
+            throw new BusinessException (ErrorCode.PARAMS_ERROR);
+        }
+
+        boolean result = userService.updateMyUser (userUpdateMyRequest,request);
+
+        return ResultUtils.success (result);
+
 
     }
 }

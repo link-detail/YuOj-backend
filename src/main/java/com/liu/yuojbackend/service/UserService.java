@@ -1,13 +1,17 @@
 package com.liu.yuojbackend.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.liu.yuojbackend.model.dto.user.UserQueryRequest;
+import com.liu.yuojbackend.model.dto.user.UserUpdateMyRequest;
 import com.liu.yuojbackend.model.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.liu.yuojbackend.model.vo.LoginUserVO;
 import com.liu.yuojbackend.model.vo.UserVO;
+import sun.security.krb5.internal.PAForUserEnc;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
 
@@ -50,4 +54,14 @@ public interface UserService extends IService<User> {
      */
     QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
 
+
+    /**
+     * 将用户类列表转为用户封装类列表
+     */
+    List<UserVO> getUserVOList(List<User> list);
+
+    /**
+     * 更新个人信息
+     */
+    boolean updateMyUser(UserUpdateMyRequest userUpdateMyRequest,HttpServletRequest request);
 }

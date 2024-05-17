@@ -24,11 +24,11 @@ public class PageRequest {
     /**
      * 排序字段
      */
-    private String sortField="id";  //按照id降序
+    private String sortField="createTime";  //按照时间升序
 
     /**
      * 排序顺序
      */
-    private String sortOrder= CommonConstant.SORT_ORDER_DESC;  //默认是升序
+    private String sortOrder= CommonConstant.SORT_ORDER_ASC;  //默认是升序
 
 }

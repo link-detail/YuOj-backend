@@ -1,14 +1,10 @@
 package com.liu.yuojbackend.model.dto.user;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.liu.yuojbackend.common.PageRequest;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * @Author 刘渠好
@@ -17,7 +13,7 @@ import java.util.Date;
  *
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true)  //这个注解的意思是继承父类的字类，如果callSuper=true，则表示继承的属性也要一致才返回true
 public class UserQueryRequest extends PageRequest implements Serializable {
 
 
