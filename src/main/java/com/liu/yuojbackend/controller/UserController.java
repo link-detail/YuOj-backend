@@ -2,7 +2,6 @@ package com.liu.yuojbackend.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.fasterxml.jackson.databind.ser.Serializers;
 import com.liu.yuojbackend.annotation.AuthCheck;
 import com.liu.yuojbackend.common.BaseResponse;
 import com.liu.yuojbackend.common.DeleteRequest;
@@ -13,25 +12,16 @@ import com.liu.yuojbackend.exception.BusinessException;
 import com.liu.yuojbackend.exception.ThrowUtils;
 import com.liu.yuojbackend.model.dto.user.*;
 import com.liu.yuojbackend.model.entity.User;
-import com.liu.yuojbackend.model.enums.UserRoleEnum;
 import com.liu.yuojbackend.model.vo.LoginUserVO;
 import com.liu.yuojbackend.model.vo.UserVO;
 import com.liu.yuojbackend.service.UserService;
-import com.sun.corba.se.spi.ior.IdentifiableFactory;
-import com.sun.org.apache.bcel.internal.generic.NEW;
-import kotlin.math.MathKt;
-import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-
-import java.nio.channels.Pipe;
-import java.util.BitSet;
 import java.util.List;
 
 import static com.liu.yuojbackend.constant.UserConstant.DEFAULT_PASSWORD;
@@ -256,13 +246,19 @@ public class UserController {
     public BaseResponse<Boolean> updateMyUser(@RequestBody UserUpdateMyRequest userUpdateMyRequest,HttpServletRequest request){
         //校验参数
         if (userUpdateMyRequest==null){
-            throw new BusinessException (ErrorCode.PARAMS_ERROR);
+            throw new BusinessException (ErrorCode.PARAMS_ERROR,"请选择一个需要修改的参数！");
         }
-
-        boolean result = userService.updateMyUser (userUpdateMyRequest,request);
-
-        return ResultUtils.success (result);
-
+        //获取当前登录用户
+        User loginUser = userService.getLoginUser (request);
+        User user = new User ();
+        BeanUtil.copyProperties (userUpdateMyRequest, user);
+        user.setId (loginUser.getId ());
+        //修改
+        boolean result = userService.updateById (user);
+        if (!result){
+            throw new BusinessException (ErrorCode.PARAMS_ERROR,"更新个人信息失败！");
+        }
+        return ResultUtils.success (true);
 
     }
 }

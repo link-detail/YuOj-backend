@@ -3,52 +3,46 @@ package com.liu.yuojbackend.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.liu.yuojbackend.YuOjBackendApplication;
 import com.liu.yuojbackend.common.ErrorCode;
+import com.liu.yuojbackend.common.UserThreadLocal;
 import com.liu.yuojbackend.constant.CommonConstant;
-import com.liu.yuojbackend.constant.UserConstant;
 import com.liu.yuojbackend.exception.BusinessException;
-import com.liu.yuojbackend.exception.ThrowUtils;
 import com.liu.yuojbackend.mapper.UserMapper;
 import com.liu.yuojbackend.model.dto.user.UserQueryRequest;
-import com.liu.yuojbackend.model.dto.user.UserUpdateMyRequest;
 import com.liu.yuojbackend.model.entity.User;
 import com.liu.yuojbackend.model.enums.UserRoleEnum;
 import com.liu.yuojbackend.model.vo.LoginUserVO;
 import com.liu.yuojbackend.model.vo.UserVO;
 import com.liu.yuojbackend.service.UserService;
 import com.liu.yuojbackend.utils.SqlUtils;
-import com.sun.org.apache.xml.internal.resolver.helpers.PublicId;
-import jdk.management.resource.NotifyingMeter;
 import lombok.extern.slf4j.Slf4j;
-import net.sf.jsqlparser.statement.select.Offset;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
-import javax.jws.soap.SOAPBinding;
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import javax.servlet.http.PushBuilder;
-
-import java.lang.management.MemoryUsage;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.liu.yuojbackend.constant.UserConstant.SALT;
 import static com.liu.yuojbackend.constant.UserConstant.USER_LOGIN_STATE;
 
 /**
-* @author Administrator
-* @description 针对表【user(用户表)】的数据库操作Service实现
-* @createDate 2024-05-07 21:23:37
+* @author 刘渠好
+* @description  针对表【user(用户表)】的数据库操作Service实现
+* @createDate  2024-05-07 21:23:37
 */
 @Service
 @Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     implements UserService {
+    @Resource(name = "userThread")
+    private UserThreadLocal userThreadLocal;
+
 
     /**
      * 用户注册
@@ -127,7 +121,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         //3.将用户信息存储在session中
         HttpSession session = httpServletRequest.getSession ();
         session.setAttribute (USER_LOGIN_STATE, user);
-        //4.返回信息(脱敏之后的数据)
+         //4.返回信息(脱敏之后的数据)
         return  this.getLoginUserVO (user);
 
     }
@@ -141,8 +135,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (servletRequest.getSession ().getAttribute (USER_LOGIN_STATE)==null){
             throw new BusinessException (ErrorCode.NOT_LOGIN_ERROR,"未登录!");
         }
-        //移除登录态
+//        移除登录态
         servletRequest.getSession ().removeAttribute (USER_LOGIN_STATE);
+
         return true;
 
 
@@ -153,13 +148,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      */
     @Override
     public User getLoginUser(HttpServletRequest request) {
+        //从session中获取用户信息
         User loginUser = (User)request.getSession ().getAttribute (USER_LOGIN_STATE);
+
+
         // 先判断是否登录
         if (loginUser == null|| loginUser.getId () == null){
             throw new BusinessException (ErrorCode.NOT_LOGIN_ERROR,"尚未登录!");
         }
-        // 从数据库查询 (todo 追求性能的话 可以直接走缓存(redis))
+        // 从数据库查询
         Long id = loginUser.getId ();
+        //从数据中查到最新用户信息
         loginUser = this.getById (id);
         if (loginUser==null){
             throw new BusinessException (ErrorCode.NOT_LOGIN_ERROR);
@@ -247,78 +246,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         return list.stream ().map (this::getUserVO).collect(Collectors.toList());
     }
 
-    /**
-     * 更新个人信息
-     * @param userUpdateMyRequest
-     * @return
-     */
-    @Override
-    public boolean updateMyUser(UserUpdateMyRequest userUpdateMyRequest,HttpServletRequest request) {
-        if (userUpdateMyRequest==null){
-            throw new BusinessException (ErrorCode.PARAMS_ERROR,"参数有误!");
-        }
 
-        //获取登录用户信息
-        User loginUser = this.getLoginUser (request);
-        Long id = loginUser.getId ();
-
-        String userName = userUpdateMyRequest.getUserName ();
-        String userAvatar = userUpdateMyRequest.getUserAvatar ();
-        String userProfile = userUpdateMyRequest.getUserProfile ();
-        Integer gender = userUpdateMyRequest.getGender ();
-
-
-        //校验参数
-        if (StringUtils.isNotBlank (userName)&&userName.length ()>8){
-            throw new BusinessException (ErrorCode.PARAMS_ERROR,"用户名字过长!");
-        }
-        if (StringUtils.isNotBlank (userProfile)&&userProfile.length ()>100){
-            throw new BusinessException (ErrorCode.PARAMS_ERROR,"用户简介过长!");
-        }
-
-        String userPassword = userUpdateMyRequest.getUserPassword ();
-        String checkPassword = userUpdateMyRequest.getCheckPassword ();
-
-        //更改密码(小技巧 isEmpty主要来验证该字符串是否未null)
-        if (StringUtils.isEmpty (userPassword)||StringUtils.isEmpty (checkPassword)){
-            throw new BusinessException (ErrorCode.PARAMS_ERROR,"密码不能为null!");
-        }
-        if (userPassword.length ()<8||checkPassword.length ()<8){
-            throw new BusinessException (ErrorCode.PARAMS_ERROR,"密码长度过短!");
-        }
-
-        //校验两次密码是否一致
-        if (!userPassword.equals (checkPassword)){
-            throw new BusinessException (ErrorCode.PARAMS_ERROR,"两次密码输入不一致!");
-        }
-
-        //新密码不可以旧密码一致
-        User byId = this.getById (id);
-        String oldUserPassword = byId.getUserPassword ();
-        String md5UserPassword = DigestUtils.md5DigestAsHex ((SALT + userPassword).getBytes ());
-        if (oldUserPassword.equals (md5UserPassword)){
-            throw new BusinessException (ErrorCode.PARAMS_ERROR,"新密码不可以和旧密码一致");
-        }
-        //更新用户
-        User user = new User ();
-        user.setId (id);
-        user.setUserName (userName);
-         user.setUserAvatar (userAvatar);
-        user.setUserProfile (userProfile);
-        user.setGender (gender);
-        user.setUserPassword (md5UserPassword);
-
-        boolean result = this.updateById (user);
-
-
-        ThrowUtils.throwIf (!result,ErrorCode.SYSTEM_ERROR,"操作数据库失败!");
-
-        //更新登录态的信息
-        request.getSession ().removeAttribute (USER_LOGIN_STATE);  //移除之后新加进去
-        request.getSession ().setAttribute (USER_LOGIN_STATE,this.getById (id));
-
-        return result;
-    }
 
 }
 

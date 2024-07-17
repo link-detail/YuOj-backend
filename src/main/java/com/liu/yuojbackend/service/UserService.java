@@ -60,8 +60,4 @@ public interface UserService extends IService<User> {
      */
     List<UserVO> getUserVOList(List<User> list);
 
-    /**
-     * 更新个人信息
-     */
-    boolean updateMyUser(UserUpdateMyRequest userUpdateMyRequest,HttpServletRequest request);
 }
