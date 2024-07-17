@@ -1,6 +1,5 @@
 package com.liu.yuojbackend.person.threadLoccal;
 
-import com.liu.yuojbackend.common.UserThreadLocal;
 import com.liu.yuojbackend.model.entity.User;
 
 /**

@@ -5,7 +5,6 @@ import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.liu.yuojbackend.common.ErrorCode;
-import com.liu.yuojbackend.common.UserThreadLocal;
 import com.liu.yuojbackend.constant.CommonConstant;
 import com.liu.yuojbackend.exception.BusinessException;
 import com.liu.yuojbackend.mapper.UserMapper;
@@ -21,7 +20,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
@@ -40,9 +38,6 @@ import static com.liu.yuojbackend.constant.UserConstant.USER_LOGIN_STATE;
 @Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     implements UserService {
-    @Resource(name = "userThread")
-    private UserThreadLocal userThreadLocal;
-
 
     /**
      * 用户注册
