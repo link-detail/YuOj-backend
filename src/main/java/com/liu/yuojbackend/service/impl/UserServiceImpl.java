@@ -31,7 +31,7 @@ import static com.liu.yuojbackend.constant.UserConstant.USER_LOGIN_STATE;
 
 /**
 * @author 刘渠好
-* @description  针对表【user(用户表)】的数据库操作Service实现
+* @description  user(用户表)的数据库操作Service实现
 * @createDate  2024-05-07 21:23:37
 */
 @Service
