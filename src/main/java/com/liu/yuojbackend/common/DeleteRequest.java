@@ -1,6 +1,5 @@
 package com.liu.yuojbackend.common;
 
-import com.liu.yuojbackend.model.vo.LoginUserVO;
 import lombok.Data;
 
 import java.io.Serializable;
