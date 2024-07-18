@@ -4,14 +4,16 @@ import com.baomidou.mybatisplus.annotation.*;
 
 import java.io.Serializable;
 import java.util.Date;
+
+import com.liu.yuojbackend.model.dto.questionsubmit.JudgeInfo;
 import lombok.Data;
 
 /**
- * 用户表
+ * 题目提交表
  */
-@TableName(value ="user")
+@TableName(value ="submit_question")
 @Data
-public class User implements Serializable {
+public class QuestionSubmit implements Serializable {
     /**
      * id
      */
@@ -19,58 +21,51 @@ public class User implements Serializable {
     private Long id;
 
     /**
-     * 用户昵称
+     * 提交题目用户id
      */
-    private String userName;
+    private Long userId;
 
     /**
-     * 账号
+     * 题目id
      */
-    private String userAccount;
+    private Long questionId;
 
     /**
-     * 头像
+     * 编程语言
      */
-    private String userAvatar;
+    private String language;
 
     /**
-     * 用户简介
+     * 用户代码
      */
-    private String userProfile;
+    private String code;
 
     /**
-     * 性别
+     * 判题状态（0-待判题 1-判题中 2-成功 3-失败）
      */
-    private Integer gender;
+    private Integer status;
 
     /**
-     * 用户角色:user/ admin
+     * 判题信息（json对象）
      */
-    private String userRole;
-
-    /**
-     * 密码
-     */
-    private String userPassword;
+    private String judgeInfo;
 
     /**
      * 创建时间
      */
-    private Date createTime;
+    private Date creatTime;
 
     /**
-     * 更新时间
+     * 删除时间
      */
     private Date updateTime;
 
     /**
-     * 是否删除 0/1
-     * 逻辑删除
+     * 是否删除
      */
     @TableLogic
     private Integer isDelete;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
-
 }
