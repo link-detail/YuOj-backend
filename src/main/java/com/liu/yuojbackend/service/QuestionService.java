@@ -5,8 +5,8 @@ import com.liu.yuojbackend.model.entity.Question;
 
 /**
 * @author 刘渠好
-* @description 针对表【question(题目表)】的数据库操作Service
-* @createDate 2024-07-18 23:06:14
+* 针对表【question(题目表)】的数据库操作Service
+
 */
 public interface QuestionService extends IService<Question> {
     /**

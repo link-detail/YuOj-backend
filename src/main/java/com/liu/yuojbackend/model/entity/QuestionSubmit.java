@@ -1,12 +1,10 @@
 package com.liu.yuojbackend.model.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
-
-import com.liu.yuojbackend.model.dto.questionsubmit.JudgeInfo;
-import lombok.Data;
 
 /**
  * 题目提交表
