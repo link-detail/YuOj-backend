@@ -1,12 +1,9 @@
 package com.liu.yuojbackend.person.question;
 
-import com.liu.yuojbackend.model.entity.User;
-import com.sun.org.apache.bcel.internal.generic.NEW;
+import sun.plugin2.jvm.ProcessLauncher;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @Author 刘渠好
@@ -14,13 +11,9 @@ import java.util.Map;
  */
 public class Demo1 {
     public static void main(String[] args) {
-        Map<Long, List<User>> listMap = new HashMap<> ();
-        List<User> users = new ArrayList<> ();
-        User user = new User ();
-        user.setId (1L);
-        user.setUserName ("name");
-        users.add (user);
-        listMap.put (0L,users);
-
+        List<String > list1 = new ArrayList<> ();
+        list1.add ("1");
+        list1.add ("2");
+        System.out.println (list1);
     }
 }
