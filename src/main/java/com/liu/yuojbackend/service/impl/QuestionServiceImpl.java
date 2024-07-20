@@ -28,6 +28,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -60,6 +61,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         String judgeCase = question.getJudgeCase ();
         String judgeConfig = question.getJudgeConfig ();
         if (add){
+            //必须每一个都不是空
             ThrowUtils.throwIf (StringUtils.isAnyBlank (tags, title, content), ErrorCode.PARAMS_ERROR);
         }
         //参数校验
@@ -124,8 +126,11 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         queryWrapper.like (StringUtils.isNotBlank (title),"title", title);
         queryWrapper.like (StringUtils.isNotBlank (content),"content", content);
         queryWrapper.like (StringUtils.isNotBlank (answer),"answer", answer);
-        for (String tag : tags) {
-            queryWrapper.like ("tags","\""+tag+"\"");
+        if (ObjectUtils.isNotEmpty (tags)){
+            for (String tag : tags) {
+                queryWrapper.like ("tags","\""+tag+"\"");  //tags LIKE ? AND tags LIKE ?
+//            queryWrapper.like ("tags",tag);  //tags LIKE ? AND tags LIKE ?
+            }
         }
         queryWrapper.orderBy (SqlUtils.validSortField (sortField),sortOrder.equals (CommonConstant.SORT_ORDER_ASC),sortField);
         return queryWrapper;
@@ -144,25 +149,47 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         if (CollectionUtils.isEmpty(questionList)) {
             return questionVOPage;
         }
-        //收集用户id
-        Set<Long> idSet = questionList.stream ().map (Question::getUserId).collect (Collectors.toSet ());
-        //每一个id对应一个用户
-        Map<Long, List<User>> userIdUserListMap = userService.listByIds (idSet).stream ().collect (Collectors.groupingBy (User::getId));
-        //填充信息
+        //收集用户信息
+        Set<Long> isSet = questionList.stream ().map (Question::getUserId).collect (Collectors.toSet ()); //收集用户id
+        //以id来存储每一个用户对象(id:对象)  根据id进行分组
+        Map<Long, List<User>> userMap = userService.listByIds (isSet).stream ().collect (Collectors.groupingBy (User::getId));
+        //关联用户信息
         List<QuestionVO> questionVOS = questionList.stream ().map (question -> {
             QuestionVO questionVO = new QuestionVO ();
             BeanUtils.copyProperties (question, questionVO);
             questionVO.setTags (JSONUtil.toList (question.getTags (), String.class));
             questionVO.setJudgeConfig (JSONUtil.toBean (question.getJudgeConfig (), JudgeConfig.class));
-            //关联用户信息
-            if (userIdUserListMap.containsKey (question.getUserId ())) {
-                User user = userIdUserListMap.get (question.getUserId ()).get (0);
-                UserVO userVO = userService.getUserVO (user);
-                questionVO.setUserVO (userVO);
+            if (userMap.containsKey (question.getUserId ())) {
+                //找到对应用户
+                User user = userMap.get (question.getUserId ()).get (0);
+                questionVO.setUserVO (userService.getUserVO (user));
             }
+
             return questionVO;
         }).collect (Collectors.toList ());
-        return questionVOPage.setRecords (questionVOS);
+        questionVOPage.setRecords (questionVOS);
+
+
+
+//        //收集用户id
+//        Set<Long> idSet = questionList.stream ().map (Question::getUserId).collect (Collectors.toSet ());
+//        //每一个id对应一个用户
+//        Map<Long, List<User>> userIdUserListMap = userService.listByIds (idSet).stream ().collect (Collectors.groupingBy (User::getId));
+//        //填充信息
+//        List<QuestionVO> questionVOS = questionList.stream ().map (question -> {
+//            QuestionVO questionVO = new QuestionVO ();
+//            BeanUtils.copyProperties (question, questionVO);
+//            questionVO.setTags (JSONUtil.toList (question.getTags (), String.class));
+//            questionVO.setJudgeConfig (JSONUtil.toBean (question.getJudgeConfig (), JudgeConfig.class));
+//            //关联用户信息
+//            if (userIdUserListMap.containsKey (question.getUserId ())) {
+//                User user = userIdUserListMap.get (question.getUserId ()).get (0);
+//                UserVO userVO = userService.getUserVO (user);
+//                questionVO.setUserVO (userVO);
+//            }
+//            return questionVO;
+//        }).collect (Collectors.toList ());
+//        return questionVOPage.setRecords (questionVOS);
 
 //        //收集信息(笨方法)
 //        List<QuestionVO> questionVOList =new ArrayList<> ();
@@ -202,7 +229,20 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
 //            return questionVO;
 //        }).collect(Collectors.toList());
 //        questionVOPage.setRecords(questionVOList);
-//        return questionVOPage;
+        return questionVOPage;
+    }
+
+    /**
+     *分页获取当前用户创建的资源列表
+     */
+    @Override
+    public QueryWrapper<Question> getQueryWrapper(QuestionQueryRequest questionQueryRequest, HttpServletRequest request) {
+        //复用代码
+        QueryWrapper<Question> queryWrapper = this.getQueryWrapper (questionQueryRequest);
+        //新加一个当前用户条件
+        User loginUser = userService.getLoginUser (request);
+        queryWrapper.eq (ObjectUtils.isNotEmpty (loginUser.getId ()),"userId",loginUser.getId ());
+        return queryWrapper;
     }
 
 }

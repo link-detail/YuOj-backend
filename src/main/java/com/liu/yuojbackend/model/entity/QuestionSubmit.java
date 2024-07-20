@@ -9,7 +9,7 @@ import java.util.Date;
 /**
  * 题目提交表
  */
-@TableName(value ="submit_question")
+@TableName(value ="question_submit")
 @Data
 public class QuestionSubmit implements Serializable {
     /**

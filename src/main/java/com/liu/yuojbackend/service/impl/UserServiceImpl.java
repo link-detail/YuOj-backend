@@ -241,6 +241,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         return list.stream ().map (this::getUserVO).collect(Collectors.toList());
     }
 
+    /**
+     * 判断是否是管理员
+     * @param user
+     * @return
+     */
+    @Override
+    public boolean isAdmin(User user) {
+        /**
+         * 笨方法
+         *   if (user==null){
+         *             throw new BusinessException (ErrorCode.NOT_LOGIN_ERROR);
+         *         }
+         *         if (UserRoleEnum.ADMIN.getValue ().equals (user.getUserRole ())){
+         *             return true;
+         *         }
+         *         return false;
+         */
+        //下次就这么写
+        return user!=null && UserRoleEnum.ADMIN.getValue ().equals (user.getUserRole ());
+
+    }
 
 
 }

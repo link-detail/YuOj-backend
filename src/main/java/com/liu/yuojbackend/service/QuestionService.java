@@ -7,7 +7,7 @@ import com.liu.yuojbackend.model.dto.question.QuestionQueryRequest;
 import com.liu.yuojbackend.model.entity.Question;
 import com.liu.yuojbackend.model.vo.question.QuestionVO;
 
-import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 
 /**
 * @author 刘渠好
@@ -29,7 +29,7 @@ public interface QuestionService extends IService<Question> {
 
 
     /**
-     * 根据查询条件查询
+     *分页获取列表（封装类）
      * @param questionQueryRequest
      * @return
      */
@@ -42,4 +42,11 @@ public interface QuestionService extends IService<Question> {
      */
 
     Page<QuestionVO> getQuestionVOPage(Page<Question> page);
+
+    /**
+     *分页获取当前用户创建的资源列表
+     * @param questionQueryRequest
+     * @return
+     */
+    QueryWrapper<Question> getQueryWrapper(QuestionQueryRequest questionQueryRequest, HttpServletRequest request);
 }

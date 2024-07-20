@@ -6,6 +6,7 @@ import com.liu.yuojbackend.model.dto.user.UserQueryRequest;
 import com.liu.yuojbackend.model.entity.User;
 import com.liu.yuojbackend.model.vo.user.LoginUserVO;
 import com.liu.yuojbackend.model.vo.user.UserVO;
+import org.springframework.beans.BeanUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -56,5 +57,10 @@ public interface UserService extends IService<User> {
      * 将用户类列表转为用户封装类列表
      */
     List<UserVO> getUserVOList(List<User> list);
+
+    /**
+     * 判断用户是否是管理员
+     */
+    boolean isAdmin(User user);
 
 }

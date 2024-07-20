@@ -18,12 +18,10 @@ import com.liu.yuojbackend.model.vo.question.QuestionVO;
 import com.liu.yuojbackend.service.QuestionService;
 import com.liu.yuojbackend.service.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.webresources.war.WarURLConnection;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.annotation.Signed;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -163,7 +161,7 @@ public class QuestionController {
     }
 
     /**
-     * 分页获取列表
+     * 分页获取列表(封装类)
      */
     @PostMapping("/list/page/vo")
     public BaseResponse<Page<QuestionVO>> listQuestionVOByPage(@RequestBody QuestionQueryRequest questionQueryRequest){
@@ -174,8 +172,88 @@ public class QuestionController {
         //获取分页列表
         long pageSize = questionQueryRequest.getPageSize ();  //页面大小
         long current = questionQueryRequest.getCurrent ();  //当前页
+        //限制爬虫
+        ThrowUtils.throwIf (pageSize>20,ErrorCode.PARAMS_ERROR);
         Page<Question> page = questionService.page (new Page<> (current, pageSize), questionService.getQueryWrapper (questionQueryRequest));
         return ResultUtils.success (questionService.getQuestionVOPage (page));
     }
+
+    /**
+     * 分页获取当前用户的创建的资源列表
+     */
+    @PostMapping("/my/list/page/vo")
+    public BaseResponse<Page<QuestionVO>> listMyQuestionVOByPage(@RequestBody QuestionQueryRequest questionQueryRequest,HttpServletRequest request){
+        //校验参数
+        if (questionQueryRequest==null){
+            throw new BusinessException (ErrorCode.PARAMS_ERROR);
+        }
+        //获取分页列表
+        long pageSize = questionQueryRequest.getPageSize ();  //页面大小
+        long current = questionQueryRequest.getCurrent ();  //当前页
+        //限制爬虫
+        ThrowUtils.throwIf (pageSize>20,ErrorCode.PARAMS_ERROR);
+        Page<Question> page = questionService.page (new Page<> (current, pageSize), questionService.getQueryWrapper (questionQueryRequest,request));
+        return ResultUtils.success (questionService.getQuestionVOPage (page));
+    }
+
+    /**
+     * 分页获取题目列表（仅管理员）
+     */
+    @PostMapping("/list/page")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Page<Question>> listQuestionByPage(@RequestBody QuestionQueryRequest questionQueryRequest,HttpServletRequest request){
+        //校验参数
+        if (questionQueryRequest==null){
+            throw new BusinessException (ErrorCode.PARAMS_ERROR);
+        }
+        //获取分页列表
+        long pageSize = questionQueryRequest.getPageSize ();  //页面大小
+        long current = questionQueryRequest.getCurrent ();  //当前页
+        //限制爬虫
+        ThrowUtils.throwIf (pageSize>20,ErrorCode.PARAMS_ERROR);
+        Page<Question> page = questionService.page (new Page<> (current, pageSize), questionService.getQueryWrapper (questionQueryRequest));
+        return ResultUtils.success (page);
+    }
+
+    /**
+     * 编辑（用户）
+     */
+    @PostMapping("/edit")
+    public BaseResponse<Boolean> editQuestion(@RequestBody QuestionEditRequest questionEditRequest, HttpServletRequest request){
+        Long id = questionEditRequest.getId ();
+        //校验参数
+        if (questionEditRequest==null || id<=0){
+            throw new BusinessException (ErrorCode.PARAMS_ERROR);
+        }
+        //校验参数值
+        Question question = new Question ();
+        BeanUtils.copyProperties (questionEditRequest,question);
+        //json数据处理
+        if (questionEditRequest.getTags ()!=null){
+            question.setTags (GSON.toJson (questionEditRequest.getTags ()));
+        }
+        if (questionEditRequest.getJudgeCase ()!=null){
+            question.setJudgeCase (GSON.toJson (questionEditRequest.getJudgeCase ()));
+        }
+        if (questionEditRequest.getJudgeConfig ()!=null){
+            question.setJudgeCase (GSON.toJson (questionEditRequest.getJudgeConfig ()));
+        }
+        questionService.validQuestion (question,true);
+        Question question1 = questionService.getById (id);
+        //这个题目是否存在
+        if (question1==null){
+            throw new BusinessException (ErrorCode.NOT_FOUND_ERROR);
+        }
+        User loginUser = userService.getLoginUser (request);
+        boolean b = false;
+        //只有自己或者是管理员可以编辑
+        if (loginUser.getId ().equals (question1.getUserId ()) || userService.isAdmin (loginUser)){
+            //拜年祭
+            b = questionService.updateById (question);
+        }
+        ThrowUtils.throwIf (!b,ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success (b);
+    }
+
 }
 
