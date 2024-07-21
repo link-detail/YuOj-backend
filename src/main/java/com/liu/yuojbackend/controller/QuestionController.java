@@ -165,10 +165,6 @@ public class QuestionController {
      */
     @PostMapping("/list/page/vo")
     public BaseResponse<Page<QuestionVO>> listQuestionVOByPage(@RequestBody QuestionQueryRequest questionQueryRequest){
-        //校验参数
-        if (questionQueryRequest==null){
-            throw new BusinessException (ErrorCode.PARAMS_ERROR);
-        }
         //获取分页列表
         long pageSize = questionQueryRequest.getPageSize ();  //页面大小
         long current = questionQueryRequest.getCurrent ();  //当前页
@@ -201,11 +197,7 @@ public class QuestionController {
      */
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Page<Question>> listQuestionByPage(@RequestBody QuestionQueryRequest questionQueryRequest,HttpServletRequest request){
-        //校验参数
-        if (questionQueryRequest==null){
-            throw new BusinessException (ErrorCode.PARAMS_ERROR);
-        }
+    public BaseResponse<Page<Question>> listQuestionByPage(@RequestBody QuestionQueryRequest questionQueryRequest){
         //获取分页列表
         long pageSize = questionQueryRequest.getPageSize ();  //页面大小
         long current = questionQueryRequest.getCurrent ();  //当前页
@@ -248,7 +240,7 @@ public class QuestionController {
         boolean b = false;
         //只有自己或者是管理员可以编辑
         if (loginUser.getId ().equals (question1.getUserId ()) || userService.isAdmin (loginUser)){
-            //拜年祭
+            //编辑
             b = questionService.updateById (question);
         }
         ThrowUtils.throwIf (!b,ErrorCode.OPERATION_ERROR);

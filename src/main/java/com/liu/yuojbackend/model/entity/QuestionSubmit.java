@@ -51,7 +51,7 @@ public class QuestionSubmit implements Serializable {
     /**
      * 创建时间
      */
-    private Date creatTime;
+    private Date createTime;
 
     /**
      * 删除时间

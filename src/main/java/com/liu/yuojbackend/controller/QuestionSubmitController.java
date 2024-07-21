@@ -1,6 +1,7 @@
 package com.liu.yuojbackend.controller;
 
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.spring.annotations.EnableKnife4j;
 import com.liu.yuojbackend.common.BaseResponse;
 import com.liu.yuojbackend.common.ErrorCode;
@@ -10,9 +11,11 @@ import com.liu.yuojbackend.exception.BusinessException;
 import com.liu.yuojbackend.exception.ThrowUtils;
 import com.liu.yuojbackend.model.dto.questionsubmit.JudgeInfo;
 import com.liu.yuojbackend.model.dto.questionsubmit.QuestionSubmitAddRequest;
+import com.liu.yuojbackend.model.dto.questionsubmit.QuestionSubmitQueryRequest;
 import com.liu.yuojbackend.model.entity.Question;
 import com.liu.yuojbackend.model.entity.QuestionSubmit;
 import com.liu.yuojbackend.model.entity.User;
+import com.liu.yuojbackend.model.vo.questionsubmit.QuestionSubmitVO;
 import com.liu.yuojbackend.service.QuestionService;
 import com.liu.yuojbackend.service.QuestionSubmitService;
 import com.liu.yuojbackend.service.UserService;
@@ -61,6 +64,22 @@ public class QuestionSubmitController {
         //当前用户
         User loginUser = userService.getLoginUser (request);
         return ResultUtils.success (questionSubmitService.doQuestionSubmit(questionSubmitAddRequest,loginUser));
+    }
+
+    /**
+     * 分页获取题目提交列表(除了管理员之外，普通用户只能看到非答案，提交代码等公开信息)
+     */
+    @PostMapping("/list/page")
+    public BaseResponse<Page<QuestionSubmitVO>> listQuestionSubmitByPage(@RequestBody QuestionSubmitQueryRequest questionSubmitQueryRequest,HttpServletRequest request){
+        //获取分页信息
+        long current = questionSubmitQueryRequest.getCurrent ();
+        long pageSize = questionSubmitQueryRequest.getPageSize ();
+        //防止爬虫
+        ThrowUtils.throwIf (pageSize>=10,ErrorCode.PARAMS_ERROR);
+        //查询
+        Page<QuestionSubmit> page = questionSubmitService.page (new Page<> (current, pageSize), questionSubmitService.getQueryWrapper (questionSubmitQueryRequest));
+        return ResultUtils.success (questionSubmitService.getQuestionSubmitVOPage(page,request));
+
 
     }
 }

@@ -6,7 +6,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * @Author 刘渠好内存
+ * @Author 刘渠好
  * @Date 2024-07-18 23:22
  * 判题信息对象
  */

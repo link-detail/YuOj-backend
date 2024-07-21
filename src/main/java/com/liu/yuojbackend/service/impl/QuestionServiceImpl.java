@@ -155,10 +155,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         Map<Long, List<User>> userMap = userService.listByIds (isSet).stream ().collect (Collectors.groupingBy (User::getId));
         //关联用户信息
         List<QuestionVO> questionVOS = questionList.stream ().map (question -> {
-            QuestionVO questionVO = new QuestionVO ();
-            BeanUtils.copyProperties (question, questionVO);
-            questionVO.setTags (JSONUtil.toList (question.getTags (), String.class));
-            questionVO.setJudgeConfig (JSONUtil.toBean (question.getJudgeConfig (), JudgeConfig.class));
+            QuestionVO questionVO = QuestionVO.objToVO (question);
             if (userMap.containsKey (question.getUserId ())) {
                 //找到对应用户
                 User user = userMap.get (question.getUserId ()).get (0);

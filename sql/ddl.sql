@@ -54,7 +54,7 @@ CREATE TABLE question_submit
     code text not null comment '用户代码',
     status int default 0 not null comment '判题状态（0-待判题 1-判题中 2-成功 3-失败）',
     judgeInfo text  null comment '判题信息（json对象）',
-    creatTime datetime default CURRENT_TIMESTAMP not null comment '创建时间',
+    createTime datetime default CURRENT_TIMESTAMP not null comment '创建时间',
     updateTime datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '删除时间',
     isDelete tinyint default 0 comment '是否删除',
     # 索引
