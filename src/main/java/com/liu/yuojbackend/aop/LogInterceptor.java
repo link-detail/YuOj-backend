@@ -58,7 +58,7 @@ public class LogInterceptor {
         Object target = joinPoint.getTarget ();
 
         //输出请求日志
-        log.info ("request start,id:{},path:{},ip:{},parmas:{},target：{}",reqId,requestURI,request.getRemoteHost (),
+        log.info ("request start,id:{},path:{},ip:{},params:{},target：{}",reqId,requestURI,request.getRemoteHost (),
                 reqParam,target.getClass ().getName ());
 
         //执行原方法(到了这一步之后，就去执行拦截的方法了)
