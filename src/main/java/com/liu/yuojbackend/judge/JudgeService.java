@@ -1,6 +1,5 @@
 package com.liu.yuojbackend.judge;
 
-import com.liu.yuojbackend.model.entity.Question;
 import com.liu.yuojbackend.model.entity.QuestionSubmit;
 
 /**

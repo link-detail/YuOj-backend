@@ -10,6 +10,7 @@ import com.liu.yuojbackend.judge.codesandbox.CodeSandBoxFactory;
 import com.liu.yuojbackend.judge.codesandbox.CodeSandboxProxy;
 import com.liu.yuojbackend.judge.codesandbox.model.ExecuteCodeRequest;
 import com.liu.yuojbackend.judge.codesandbox.model.ExecuteCodeResponse;
+import com.liu.yuojbackend.judge.strategy.JudgeContext;
 import com.liu.yuojbackend.model.dto.question.JudgeCase;
 import com.liu.yuojbackend.model.dto.questionsubmit.JudgeInfo;
 import com.liu.yuojbackend.model.entity.Question;
@@ -40,6 +41,9 @@ public class JudgeServiceImpl implements JudgeService {
     @Resource
     private QuestionService questionService;
 
+    @Resource
+    private JudgeManager judgeManager;
+
     @Override
     public QuestionSubmit doJudge(long questionSubmitId) {
         //1.获取对应题目信息
@@ -67,9 +71,9 @@ public class JudgeServiceImpl implements JudgeService {
         //4.调用沙箱，获取执行结果
         CodeSandBox codeSandBox = CodeSandBoxFactory.newInstance (type);
         CodeSandboxProxy codeSandboxProxy = new CodeSandboxProxy (codeSandBox);
-        //获取题目的输入用例
+        //获取题目的输出用例
         List<JudgeCase> list = JSONUtil.toList (question.getJudgeCase (), JudgeCase.class);
-        List<String> inputList = list.stream ().map (JudgeCase::getInput).collect (Collectors.toList ());
+        List<String> inputList = list.stream ().map (JudgeCase::getOutput).collect (Collectors.toList ());
         ExecuteCodeRequest build = ExecuteCodeRequest.builder ().
                 code (questionSubmit.getCode ()).
                 language (questionSubmit.getLanguage ()).
@@ -78,17 +82,23 @@ public class JudgeServiceImpl implements JudgeService {
         List<String> ouputList = executeCodeResponse.getOuputList ();
         JudgeInfo judgeInfo = executeCodeResponse.getJudgeInfo ();
         //5.设置题目的判题状态和信息
-
-
+        JudgeContext judgeContext = new JudgeContext ();
+        judgeContext.setInputList (inputList);
+        judgeContext.setOutputList (ouputList);
+        judgeContext.setJudgeInfo (judgeInfo);
+        judgeContext.setJudgeCases (JSONUtil.toList (question.getJudgeCase (),JudgeCase.class));
+        judgeContext.setQuestion (question);
+        judgeContext.setQuestionSubmit (questionSubmit);
+        JudgeInfo judgeResponse = judgeManager.doJudge (judgeContext);
         //6.修改数据库中的判题结果
         QuestionSubmit questionSubmitResult = new QuestionSubmit ();
         questionSubmitResult.setId (questionSubmitId);
-        questionSubmitResult.setJudgeInfo (JSONUtil.toJsonStr (judgeInfo));
+        questionSubmitResult.setJudgeInfo (JSONUtil.toJsonStr (judgeResponse));
+        //不管提交题目答案是对是错，只管提交的状态，具体答题对错信息在judgeInfo里面
         questionSubmitResult.setStatus (QuestionSubmitStatusEnum.SUCCEED.getValue ());
         boolean b2 = questionSubmitService.updateById (questionSubmitResult);
         ThrowUtils.throwIf (!b2,ErrorCode.OPERATION_ERROR,"修改失败！");
         //获取最近数据返回
-        QuestionSubmit byId = questionSubmitService.getById (questionSubmitId);
-        return byId;
+        return questionSubmitService.getById (questionSubmitId);
     }
 }
