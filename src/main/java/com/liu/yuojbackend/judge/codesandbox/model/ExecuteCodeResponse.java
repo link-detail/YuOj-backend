@@ -1,7 +1,6 @@
 package com.liu.yuojbackend.judge.codesandbox.model;
 
 import com.liu.yuojbackend.model.dto.questionsubmit.JudgeInfo;
-import com.sun.org.apache.bcel.internal.generic.InstructionListObserver;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
