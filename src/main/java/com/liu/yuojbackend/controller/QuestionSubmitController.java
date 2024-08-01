@@ -1,18 +1,13 @@
 package com.liu.yuojbackend.controller;
 
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.github.xiaoymin.knife4j.spring.annotations.EnableKnife4j;
 import com.liu.yuojbackend.common.BaseResponse;
 import com.liu.yuojbackend.common.ErrorCode;
-import com.liu.yuojbackend.common.PageRequest;
 import com.liu.yuojbackend.common.ResultUtils;
 import com.liu.yuojbackend.exception.BusinessException;
 import com.liu.yuojbackend.exception.ThrowUtils;
-import com.liu.yuojbackend.model.dto.questionsubmit.JudgeInfo;
 import com.liu.yuojbackend.model.dto.questionsubmit.QuestionSubmitAddRequest;
 import com.liu.yuojbackend.model.dto.questionsubmit.QuestionSubmitQueryRequest;
-import com.liu.yuojbackend.model.entity.Question;
 import com.liu.yuojbackend.model.entity.QuestionSubmit;
 import com.liu.yuojbackend.model.entity.User;
 import com.liu.yuojbackend.model.vo.questionsubmit.QuestionSubmitVO;
@@ -20,8 +15,6 @@ import com.liu.yuojbackend.service.QuestionService;
 import com.liu.yuojbackend.service.QuestionSubmitService;
 import com.liu.yuojbackend.service.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
-import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
