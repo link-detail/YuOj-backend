@@ -1,8 +1,5 @@
 package com.liu.yuojbackend.service.impl;
 
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.json.JSON;
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -12,24 +9,22 @@ import com.liu.yuojbackend.constant.CommonConstant;
 import com.liu.yuojbackend.exception.BusinessException;
 import com.liu.yuojbackend.exception.ThrowUtils;
 import com.liu.yuojbackend.mapper.QuestionMapper;
-import com.liu.yuojbackend.model.dto.question.JudgeConfig;
 import com.liu.yuojbackend.model.dto.question.QuestionQueryRequest;
 import com.liu.yuojbackend.model.entity.Question;
 import com.liu.yuojbackend.model.entity.User;
 import com.liu.yuojbackend.model.vo.question.QuestionVO;
-import com.liu.yuojbackend.model.vo.user.UserVO;
 import com.liu.yuojbackend.service.QuestionService;
 import com.liu.yuojbackend.service.UserService;
 import com.liu.yuojbackend.utils.SqlUtils;
-import io.swagger.util.Json;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
