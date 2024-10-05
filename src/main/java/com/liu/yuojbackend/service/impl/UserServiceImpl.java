@@ -3,6 +3,7 @@ package com.liu.yuojbackend.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.liu.yuojbackend.common.ErrorCode;
 import com.liu.yuojbackend.constant.CommonConstant;
@@ -14,19 +15,18 @@ import com.liu.yuojbackend.model.enums.UserRoleEnum;
 import com.liu.yuojbackend.model.vo.user.LoginUserVO;
 import com.liu.yuojbackend.model.vo.user.UserVO;
 import com.liu.yuojbackend.service.UserService;
+import com.liu.yuojbackend.utils.CopyUtil;
 import com.liu.yuojbackend.utils.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.liu.yuojbackend.constant.UserConstant.SALT;
 import static com.liu.yuojbackend.constant.UserConstant.USER_LOGIN_STATE;
 
 /**
@@ -39,34 +39,23 @@ import static com.liu.yuojbackend.constant.UserConstant.USER_LOGIN_STATE;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     implements UserService {
 
+    //盐值，混淆密码
+    public static final String SALT ="liu";
     /**
      * 用户注册
      */
     @Override
     public long userResister(String userAccount, String userPassword, String checkPassword) {
-
         /**
          * 在查询数据库的时候，先把数据库之外的操作做了，之后再去查询数据库，避免浪费数据库资源
          */
-        //1.校验
-        if (StringUtils.isAnyBlank (userAccount, userPassword, checkPassword)) {
-            throw new BusinessException (ErrorCode.PARAMS_ERROR, "请求参数有误!");
-        }
-        if (userAccount.length () < 4) {
-            throw new BusinessException (ErrorCode.PARAMS_ERROR, "账号长度过短!");
-        }
-        if (userPassword.length () < 8 || checkPassword.length () < 8) {
-            throw new BusinessException (ErrorCode.PARAMS_ERROR, "密码长度小于八位!");
-        }
-        // 校验两次输入密码是否一致
-        if (!userPassword.equals (checkPassword)) {
-            throw new BusinessException (ErrorCode.PARAMS_ERROR, "两次输入密码不一致!");
-        }
 
-        //加锁(避免账号重复)
+        /**
+         * 加锁：以确保在多线程环境中，同一时间只有一个线程能够执行这段代码块中的代码
+         */
+        //加锁(避免重复去注册)
         synchronized (userAccount.intern ()) {
-
-            //账号不可以一致
+            //1.账号不可以重复
             QueryWrapper<User> queryWrapper = new QueryWrapper<> ();
             queryWrapper.eq ("userAccount", userAccount);
             User selectOne = this.baseMapper.selectOne (queryWrapper);
@@ -93,28 +82,34 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      * 用户登陆
      */
     @Override
-    public LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest httpServletRequest) {
-        //校验参数
-        if (StringUtils.isAnyBlank (userAccount, userPassword)) {
-            throw new BusinessException (ErrorCode.PARAMS_ERROR, "请正确填写账号信息!");
-        }
+    public LoginUserVO userLogin(String userAccount, String userPassword, HttpSession session) {
+
         //1.判断用户是否存在
-        QueryWrapper<User> queryWrapper = new QueryWrapper<> ();
         //密码是明文的，需要加密
         String md5DigestAsHex = DigestUtils.md5DigestAsHex ((SALT + userPassword).getBytes ());
-        queryWrapper.eq ("userAccount", userAccount);
-        queryWrapper.eq ("userPassword", md5DigestAsHex);
-        User user = this.baseMapper.selectOne (queryWrapper);
+//常规查询
+//          QueryWrapper<User> queryWrapper = new QueryWrapper<> ();
+//          queryWrapper.eq ("userAccount", userAccount);
+//                  queryWrapper.eq ("userPassword", md5DigestAsHex);
+//                  User user = this.baseMapper.selectOne (queryWrapper);
+
+        //lambda表达式查询
+        User user = this.baseMapper.selectOne (
+                Wrappers.lambdaQuery (User.class)
+                .eq (User::getUserAccount, userAccount)
+                .eq (User::getUserPassword, md5DigestAsHex));
+        System.out.println (user);
+
+        //用户不存在
         if (user == null) {
             log.info ("user login failed,userAccount cannot match userPassword");
-            throw new BusinessException (ErrorCode.NOT_FOUND_ERROR, "账号或者密码错误!");
+            throw new BusinessException (ErrorCode.NOT_FOUND_ERROR, "用户不存在或者账号密码错误!");
         }
         //2.判断该用户是否被加入黑名单
-        if (user.getUserRole ().equals (UserRoleEnum.BAN.getValue ()) ){
+        if (user.getUserRole ().equals (UserRoleEnum.BAN) ){
             throw new BusinessException (ErrorCode.FORBIDDEN_ERROR, "该用户已经被加入黑名单,请合法使用账号!");
         }
-        //3.将用户信息存储在session中
-        HttpSession session = httpServletRequest.getSession ();
+        //3.记录用户的登录态
         session.setAttribute (USER_LOGIN_STATE, user);
          //4.返回信息(脱敏之后的数据)
         return  this.getLoginUserVO (user);
@@ -125,35 +120,30 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      * 用户注销
      */
     @Override
-    public boolean userLogout(HttpServletRequest servletRequest) {
+    public boolean userLogout(HttpSession session) {
         //判断是都登陆
-        if (servletRequest.getSession ().getAttribute (USER_LOGIN_STATE)==null){
+        if (session.getAttribute (USER_LOGIN_STATE)==null){
             throw new BusinessException (ErrorCode.NOT_LOGIN_ERROR,"未登录!");
         }
-//        移除登录态
-        servletRequest.getSession ().removeAttribute (USER_LOGIN_STATE);
-
+        // 移除登录态
+        session.removeAttribute (USER_LOGIN_STATE);
         return true;
-
-
     }
 
     /**
      * 获取当前登录用户
      */
     @Override
-    public User getLoginUser(HttpServletRequest request) {
+    public User getLoginUser(HttpSession session) {
         //从session中获取用户信息
-        User loginUser = (User)request.getSession ().getAttribute (USER_LOGIN_STATE);
-
+        User loginUser = (User) session.getAttribute (USER_LOGIN_STATE);
 
         // 先判断是否登录
         if (loginUser == null|| loginUser.getId () == null){
-            throw new BusinessException (ErrorCode.NOT_LOGIN_ERROR,"尚未登录!");
+            throw new BusinessException (ErrorCode.NOT_LOGIN_ERROR);
         }
-        // 从数据库查询
+        // 从数据库查询(追求性能的话，可以注释，直接走缓存)
         Long id = loginUser.getId ();
-        //从数据中查到最新用户信息
         loginUser = this.getById (id);
         if (loginUser==null){
             throw new BusinessException (ErrorCode.NOT_LOGIN_ERROR);
@@ -165,13 +155,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     /**
      * 提取一个共用方法  User --->LoginUserVO
      */
-
     public LoginUserVO getLoginUserVO(User user){
         if (user==null){
             return null;
         }
-        LoginUserVO loginUserVO = new LoginUserVO ();
-        BeanUtil.copyProperties (user,loginUserVO);
+        LoginUserVO loginUserVO = CopyUtil.copy (user, LoginUserVO.class);
+        loginUserVO.setUserRole (user.getUserRole ().getValue ());
         return loginUserVO;
     }
 
@@ -183,9 +172,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (user==null){
             return null;
         }
-        UserVO userVO = new UserVO ();
-        BeanUtil.copyProperties (user,userVO);
-        return userVO;
+        UserVO vo = CopyUtil.copy (user, UserVO.class);
+        vo.setUserRole (user.getUserRole ().getValue ());
+        return vo;
     }
 
     /**
@@ -215,7 +204,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         String sortOrder = userQueryRequest.getSortOrder ();
 
         //分页(必须排序字段满足指定要求，才可以排序)
-        queryWrapper.orderBy (SqlUtils.validSortField (sortField),sortOrder.equals (CommonConstant.SORT_ORDER_ASC),sortField);
+        queryWrapper.orderBy (SqlUtils.validSortField (sortField),
+                sortOrder.equals (CommonConstant.SORT_ORDER_ASC),
+                sortField);
         return queryWrapper;
 
 
@@ -229,16 +220,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      */
     @Override
     public List<UserVO> getUserVOList(List<User> list) {
-        if (CollUtil.isEmpty (list)){
-            return new ArrayList<> ();
-        }
-//        List<UserVO> userVOS = new ArrayList<> ();
-//        for (User user : list) {
-//            userVOS.add (getUserVO (user));
+//        if (CollUtil.isEmpty (list)){
+//            return new ArrayList<> ();
 //        }
-//        return userVOS;
-
-        return list.stream ().map (this::getUserVO).collect(Collectors.toList());
+//
+//        return list.stream ().map (this::getUserVO).collect(Collectors.toList());
+        return CopyUtil.copyList (list,UserVO.class);
     }
 
     /**

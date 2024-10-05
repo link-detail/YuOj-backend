@@ -55,7 +55,7 @@ public class QuestionSubmitController {
             throw new BusinessException (ErrorCode.PARAMS_ERROR);
         }
         //当前用户
-        User loginUser = userService.getLoginUser (request);
+        User loginUser = userService.getLoginUser (request.getSession ());
         return ResultUtils.success (questionSubmitService.doQuestionSubmit(questionSubmitAddRequest,loginUser));
     }
 

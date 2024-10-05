@@ -1,8 +1,5 @@
 package com.liu.yuojbackend.constant;
 
-import java.security.PrivateKey;
-import java.util.PrimitiveIterator;
-
 /**
  * @Author 刘渠好
  * @Date 2024-05-08 21:06
@@ -13,12 +10,7 @@ import java.util.PrimitiveIterator;
 public interface UserConstant {
 
     /**
-     * 加密盐
-     */
-    String SALT="liu";
-
-    /**
-     * 登陆用户态
+     * 用户登录态键
      */
     String USER_LOGIN_STATE ="user_login";
 

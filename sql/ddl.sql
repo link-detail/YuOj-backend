@@ -7,7 +7,7 @@ CREATE TABLE user(
                      userAccount VARCHAR(256) NOT NULL COMMENT '账号',
                      userAvatar VARCHAR(1024) NULL COMMENT '头像',
                      gender TINYINT NULL COMMENT '性别',
-                     userRole VARCHAR(256) DEFAULT 'user' COMMENT '用户角色:user/ admin',
+                     userRole VARCHAR(256) DEFAULT 'user' COMMENT '用户角色:user/ admin/ ban',
                      userPassword VARCHAR(512) NOT NULL COMMENT '密码',
                      userProfile  varchar(512)                           null comment '用户简介',
                      createTime DATETIME DEFAULT CURRENT_TIMESTAMP not NULL COMMENT '创建时间',
@@ -15,7 +15,7 @@ CREATE TABLE user(
                      isDelete TINYINT DEFAULT 0 not NULL  COMMENT '是否删除 0/1',
 #                      约束条件 （账号信息不可以一样的）
                      CONSTRAINT uni_userAccount UNIQUE (userAccount)
-)COMMENT '用户表';
+)COMMENT '用户表' collate = utf8mb4_unicode_ci;
 
 
 # --题目表

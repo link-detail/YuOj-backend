@@ -16,7 +16,6 @@ public class UserAddRequest implements Serializable {
     private static final long serialVersionUID = -2090586432976906798L;
 
 
-
     /**
      * 用户昵称
      */

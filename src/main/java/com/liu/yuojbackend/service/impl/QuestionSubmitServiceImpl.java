@@ -114,7 +114,7 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
     public QuestionSubmitVO getQuestionSubmitVO(QuestionSubmit questionSubmit, HttpServletRequest request) {
         QuestionSubmitVO questionSubmitVO = QuestionSubmitVO.objToVo (questionSubmit);
 
-        User loginUser = userService.getLoginUser (request);
+        User loginUser = userService.getLoginUser (request.getSession ());
 
         if (!loginUser.getId ().equals (questionSubmit.getUserId ()) && !userService.isAdmin (loginUser)) {
             questionSubmitVO.setCode (null);

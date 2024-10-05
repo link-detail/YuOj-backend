@@ -8,12 +8,12 @@ import com.liu.yuojbackend.common.BaseResponse;
 import com.liu.yuojbackend.common.DeleteRequest;
 import com.liu.yuojbackend.common.ErrorCode;
 import com.liu.yuojbackend.common.ResultUtils;
-import com.liu.yuojbackend.constant.UserConstant;
 import com.liu.yuojbackend.exception.BusinessException;
 import com.liu.yuojbackend.exception.ThrowUtils;
 import com.liu.yuojbackend.model.dto.question.*;
 import com.liu.yuojbackend.model.entity.Question;
 import com.liu.yuojbackend.model.entity.User;
+import com.liu.yuojbackend.model.enums.UserRoleEnum;
 import com.liu.yuojbackend.model.vo.question.QuestionVO;
 import com.liu.yuojbackend.service.QuestionService;
 import com.liu.yuojbackend.service.UserService;
@@ -49,7 +49,7 @@ public class QuestionController {
      * 新增题目（管理员可以新增）
      */
     @PostMapping("/add")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @AuthCheck(mustRole = UserRoleEnum.ADMIN)
     public BaseResponse<Long> addQuestion(@RequestBody QuestionAddRequest questionAddRequest, HttpServletRequest request){
         //校验参数
         if (questionAddRequest==null){
@@ -73,7 +73,7 @@ public class QuestionController {
         //校验参数
         questionService.validQuestion (question, true);
         //获取当前用户
-        User loginUser = userService.getLoginUser (request);
+        User loginUser = userService.getLoginUser (request.getSession ());
         question.setUserId (loginUser.getId ());
         //保存
         boolean save = questionService.save (question);
@@ -85,7 +85,7 @@ public class QuestionController {
      * 删除题目（管理员可以删除）
      */
     @PostMapping("/delete")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @AuthCheck(mustRole = UserRoleEnum.ADMIN)
     public BaseResponse<Boolean> deleteQuestion(@RequestBody DeleteRequest deleteRequest){
         Long id = deleteRequest.getId ();
         //校验参数
@@ -107,7 +107,7 @@ public class QuestionController {
      * 修改题目(只限于管理员）
      */
     @PostMapping("/update")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @AuthCheck(mustRole = UserRoleEnum.ADMIN)
     public BaseResponse<Boolean> updateQuestion(@RequestBody QuestionUpdateRequest questionUpdateRequest){
         Long id = questionUpdateRequest.getId ();
         //校验参数
@@ -196,7 +196,7 @@ public class QuestionController {
      * 分页获取题目列表（仅管理员）
      */
     @PostMapping("/list/page")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @AuthCheck(mustRole = UserRoleEnum.ADMIN)
     public BaseResponse<Page<Question>> listQuestionByPage(@RequestBody QuestionQueryRequest questionQueryRequest){
         //获取分页列表
         long pageSize = questionQueryRequest.getPageSize ();  //页面大小
@@ -236,7 +236,7 @@ public class QuestionController {
         if (question1==null){
             throw new BusinessException (ErrorCode.NOT_FOUND_ERROR);
         }
-        User loginUser = userService.getLoginUser (request);
+        User loginUser = userService.getLoginUser (request.getSession ());
         boolean b = false;
         //只有自己或者是管理员可以编辑
         if (loginUser.getId ().equals (question1.getUserId ()) || userService.isAdmin (loginUser)){

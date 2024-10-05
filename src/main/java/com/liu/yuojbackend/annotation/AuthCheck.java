@@ -1,5 +1,7 @@
 package com.liu.yuojbackend.annotation;
 
+import com.liu.yuojbackend.model.enums.UserRoleEnum;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -16,6 +18,7 @@ public @interface AuthCheck {
 
     /**
      * 注解参数
+     * 注：下次注解参数名可以直接写value，之后不用写参数=... 更简化一点
      */
-    String mustRole() default  "";
+    UserRoleEnum[] mustRole() default {};
 }

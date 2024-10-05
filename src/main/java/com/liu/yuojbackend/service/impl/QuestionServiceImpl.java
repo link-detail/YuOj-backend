@@ -232,7 +232,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         //复用代码
         QueryWrapper<Question> queryWrapper = this.getQueryWrapper (questionQueryRequest);
         //新加一个当前用户条件
-        User loginUser = userService.getLoginUser (request);
+        User loginUser = userService.getLoginUser (request.getSession ());
         queryWrapper.eq (ObjectUtils.isNotEmpty (loginUser.getId ()),"userId",loginUser.getId ());
         return queryWrapper;
     }

@@ -3,6 +3,7 @@ package com.liu.yuojbackend.model.dto.user;
 import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 /**
@@ -16,6 +17,7 @@ public class UserUpdateMyRequest implements Serializable {
     /**
      * 用户昵称
      */
+    @NotBlank(message = "昵称不能为空")
     private String userName;
 
     /**
@@ -27,22 +29,6 @@ public class UserUpdateMyRequest implements Serializable {
      * 用户简介
      */
     private String userProfile;
-
-    /**
-     * 性别
-     */
-    private Integer gender;
-
-
-    /**
-     * 新密码密码
-     */
-    private String userPassword;
-
-    /**
-     * 检查新密码
-     */
-    private String checkPassword;
 
 
     @TableField(exist = false)

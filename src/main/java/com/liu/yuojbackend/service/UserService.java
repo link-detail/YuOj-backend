@@ -6,9 +6,10 @@ import com.liu.yuojbackend.model.dto.user.UserQueryRequest;
 import com.liu.yuojbackend.model.entity.User;
 import com.liu.yuojbackend.model.vo.user.LoginUserVO;
 import com.liu.yuojbackend.model.vo.user.UserVO;
-import org.springframework.beans.BeanUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponseWrapper;
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
 /**
@@ -25,17 +26,17 @@ public interface UserService extends IService<User> {
     /**
      *用户登陆
      */
-    LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest httpServletRequest);
+    LoginUserVO userLogin(String userAccount, String userPassword, HttpSession session);
 
     /**
      * 用户注销
      */
-    boolean userLogout(HttpServletRequest servletRequest);
+    boolean userLogout(HttpSession session);
 
     /**
      * 获取当前登陆用户
      */
-    User getLoginUser(HttpServletRequest request);
+    User getLoginUser(HttpSession session);
 
     /**
      * 获取脱敏之后的数据

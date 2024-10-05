@@ -7,7 +7,7 @@ server:
 
 
 spring:
-  #mysql配置
+  #mysql配置 8.0
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root

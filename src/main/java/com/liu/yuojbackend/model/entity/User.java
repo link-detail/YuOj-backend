@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.*;
 
 import java.io.Serializable;
 import java.util.Date;
+
+import com.liu.yuojbackend.model.enums.UserRoleEnum;
 import lombok.Data;
 
 /**
@@ -46,7 +48,7 @@ public class User implements Serializable {
     /**
      * 用户角色:user/ admin
      */
-    private String userRole;
+    private UserRoleEnum userRole;
 
     /**
      * 密码
