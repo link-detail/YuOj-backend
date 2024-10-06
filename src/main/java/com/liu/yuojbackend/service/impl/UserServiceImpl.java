@@ -1,7 +1,5 @@
 package com.liu.yuojbackend.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -23,9 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.liu.yuojbackend.constant.UserConstant.USER_LOGIN_STATE;
 
@@ -97,8 +93,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         User user = this.baseMapper.selectOne (
                 Wrappers.lambdaQuery (User.class)
                 .eq (User::getUserAccount, userAccount)
-                .eq (User::getUserPassword, md5DigestAsHex));
-        System.out.println (user);
+                .eq (User::getUserPassword, md5DigestAsHex)
+        );
 
         //用户不存在
         if (user == null) {

@@ -1,5 +1,6 @@
 package com.liu.yuojbackend.controller;
 
+import cn.hutool.crypto.digest.DigestUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.liu.yuojbackend.annotation.AuthCheck;
 import com.liu.yuojbackend.common.BaseResponse;
@@ -17,13 +18,14 @@ import com.liu.yuojbackend.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 import java.util.List;
 
-
+import static com.liu.yuojbackend.service.impl.UserServiceImpl.SALT;
 
 
 /**
@@ -146,7 +148,12 @@ public class UserController {
         }
 
         User user = new User ();
+        //设置用户默认密码 11111111
+        String userPassword = "11111111";
+        String md5DigestAsHex = DigestUtils.md5DigestAsHex ((SALT + userPassword).getBytes ());
+        user.setUserPassword (md5DigestAsHex);
         BeanUtils.copyProperties (userAddRequest, user);
+        user.setUserRole (UserRoleEnum.getEnumByValue (userAddRequest.getUserRole ()));
         //保存到数据库
         if (!userService.save (user)) {
             throw new BusinessException (ErrorCode.OPERATION_ERROR, "数据库操作失败!");
