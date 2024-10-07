@@ -36,11 +36,9 @@ CREATE TABLE question
     createTime datetime default current_timestamp NOT NULL comment '创建时间',
     updateTime datetime default current_timestamp not null on update CURRENT_TIMESTAMP comment '删除时间',
     isDelete tinyint default 0 not null comment '是否删除',
-    # 索引
+    # 索引 以userId为索引
     index idx_userId(userId)
-
-
-)COMMENT '题目表';
+)COMMENT '题目表' collate =utf8mb4_unicode_ci;
 
 
 # --题目提交表

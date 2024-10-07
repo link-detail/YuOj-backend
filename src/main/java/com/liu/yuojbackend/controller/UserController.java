@@ -180,7 +180,7 @@ public class UserController {
     /**
      * 更新用户------仅是管理员权限可以修改
      */
-    @PostMapping("/updateUser")
+    @PostMapping("/update")
     @AuthCheck(mustRole = UserRoleEnum.ADMIN)
     public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest) {
 
@@ -189,6 +189,8 @@ public class UserController {
         }
         User user = new User ();
         BeanUtils.copyProperties (userUpdateRequest,user);
+        //设置userRole枚举值
+        user.setUserRole (UserRoleEnum.getEnumByValue (userUpdateRequest.getUserRole ()));
         ThrowUtils.throwIf (!userService.updateById (user),ErrorCode.SYSTEM_ERROR,"数据库操作失败");
         return ResultUtils.success (true);
     }

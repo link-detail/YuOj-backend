@@ -7,12 +7,9 @@ import com.liu.yuojbackend.model.dto.questionsubmit.QuestionSubmitQueryRequest;
 import com.liu.yuojbackend.model.entity.QuestionSubmit;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.liu.yuojbackend.model.entity.User;
-import com.liu.yuojbackend.model.vo.question.QuestionVO;
 import com.liu.yuojbackend.model.vo.questionsubmit.QuestionSubmitVO;
-import org.w3c.dom.html.HTMLHtmlElement;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.xml.ws.spi.http.HttpHandler;
 
 /**
 * @author Administrator

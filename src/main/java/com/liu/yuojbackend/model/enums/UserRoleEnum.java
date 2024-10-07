@@ -31,7 +31,7 @@ public enum UserRoleEnum {
      * @JsonValue 用于指定枚举和JSON值的映射：主要用在显示前端页面
      */
     @EnumValue
-//    @JsonValue
+    @JsonValue
     private String value;
 
     UserRoleEnum(String text, String value) {

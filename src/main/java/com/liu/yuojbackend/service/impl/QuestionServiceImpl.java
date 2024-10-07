@@ -1,7 +1,9 @@
 package com.liu.yuojbackend.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.liu.yuojbackend.common.ErrorCode;
@@ -18,6 +20,7 @@ import com.liu.yuojbackend.service.UserService;
 import com.liu.yuojbackend.utils.SqlUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.format.number.PercentStyleFormatter;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -38,6 +41,11 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
 
     @Resource
     private UserService userService;
+
+    //标题最大长度
+    public static final int TITLE_MAX_LEN=80;
+    //内容最大长度
+    public static final int CONTENT_MAX_LEN=8192;
 
     /**
      * 校验参数
@@ -60,19 +68,19 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
             ThrowUtils.throwIf (StringUtils.isAnyBlank (tags, title, content), ErrorCode.PARAMS_ERROR);
         }
         //参数校验
-        if (StringUtils.isNotBlank (title) && title.length ()>88){
+        if (StringUtils.isNotBlank (title) && title.length ()>TITLE_MAX_LEN){
             throw new BusinessException (ErrorCode.PARAMS_ERROR,"标题过长!");
         }
-          if (StringUtils.isNotBlank (content) && content.length ()>88){
+          if (StringUtils.isNotBlank (content) && content.length ()>CONTENT_MAX_LEN){
             throw new BusinessException (ErrorCode.PARAMS_ERROR,"内容过长!");
         }
-          if (StringUtils.isNotBlank (answer) && answer.length ()>88){
+          if (StringUtils.isNotBlank (answer) && answer.length ()>CONTENT_MAX_LEN){
             throw new BusinessException (ErrorCode.PARAMS_ERROR,"答案过长!");
         }
-          if (StringUtils.isNotBlank (judgeCase) && judgeCase.length ()>88){
+          if (StringUtils.isNotBlank (judgeCase) && judgeCase.length ()>CONTENT_MAX_LEN){
             throw new BusinessException (ErrorCode.PARAMS_ERROR,"判题用例过长!");
         }
-          if (StringUtils.isNotBlank (judgeConfig) && judgeCase.length ()>88){
+          if (StringUtils.isNotBlank (judgeConfig) && judgeCase.length ()>CONTENT_MAX_LEN){
             throw new BusinessException (ErrorCode.PARAMS_ERROR,"判题配置过长!");
         }
 
@@ -89,11 +97,10 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
     @Override
     public QuestionVO getQuestionVO(Question question) {
         QuestionVO questionVO = QuestionVO.objToVO (question);
-
         //关联用户信息
         Long userId = question.getUserId ();
         User user = null;
-        if (userId!=null || userId>0){
+        if (userId!=null && userId>0){
             user=userService.getById (userId);
         }
         questionVO.setUserVO (userService.getUserVO (user));
@@ -102,8 +109,8 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
 
     @Override
     public QueryWrapper<Question> getQueryWrapper(QuestionQueryRequest questionQueryRequest) { 
-        //拼接条件
-        QueryWrapper<Question> queryWrapper = new QueryWrapper<> ();
+        //拼接条件  (基本写法:QueryWrapper<Question> queryWrapper= new QueryWrapper<> ();)
+        QueryWrapper<Question> queryWrapper = Wrappers.query ();
         if (questionQueryRequest==null){
             return null;
         }
@@ -121,10 +128,10 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         queryWrapper.like (StringUtils.isNotBlank (title),"title", title);
         queryWrapper.like (StringUtils.isNotBlank (content),"content", content);
         queryWrapper.like (StringUtils.isNotBlank (answer),"answer", answer);
-        if (ObjectUtils.isNotEmpty (tags)){
+        if (CollUtil.isNotEmpty (tags)){
             for (String tag : tags) {
-                queryWrapper.like ("tags","\""+tag+"\"");  //tags LIKE ? AND tags LIKE ?
-//            queryWrapper.like ("tags",tag);  //tags LIKE ? AND tags LIKE ?
+//                queryWrapper.like ("tags","\""+tag+"\"");  //tags LIKE ? AND tags LIKE ?
+            queryWrapper.like ("tags",tag);  //tags LIKE ? AND tags LIKE ?
             }
         }
         queryWrapper.orderBy (SqlUtils.validSortField (sortField),sortOrder.equals (CommonConstant.SORT_ORDER_ASC),sortField);
@@ -139,12 +146,12 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
      */
     @Override
     public Page<QuestionVO> getQuestionVOPage(Page<Question> page) {
-        List<Question> questionList = page.getRecords();
-        Page<QuestionVO> questionVOPage = new Page<>(page.getCurrent(), page.getSize(), page.getTotal());
-        if (CollectionUtils.isEmpty(questionList)) {
+        List<Question> questionList = page.getRecords ();
+        Page<QuestionVO> questionVOPage = new Page<> (page.getCurrent (), page.getSize (), page.getTotal ());
+        if (CollectionUtils.isEmpty (questionList)) {
             return questionVOPage;
         }
-        //收集用户信息
+        //收集用户信息(set集合元素里的元素是不可以重复的，用来收集用户id很适合)
         Set<Long> isSet = questionList.stream ().map (Question::getUserId).collect (Collectors.toSet ()); //收集用户id
         //以id来存储每一个用户对象(id:对象)  根据id进行分组
         Map<Long, List<User>> userMap = userService.listByIds (isSet).stream ().collect (Collectors.groupingBy (User::getId));
@@ -161,6 +168,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         }).collect (Collectors.toList ());
         questionVOPage.setRecords (questionVOS);
 
+        return questionVOPage;
 
 
 //        //收集用户id
@@ -221,20 +229,8 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
 //            return questionVO;
 //        }).collect(Collectors.toList());
 //        questionVOPage.setRecords(questionVOList);
-        return questionVOPage;
-    }
 
-    /**
-     *分页获取当前用户创建的资源列表
-     */
-    @Override
-    public QueryWrapper<Question> getQueryWrapper(QuestionQueryRequest questionQueryRequest, HttpServletRequest request) {
-        //复用代码
-        QueryWrapper<Question> queryWrapper = this.getQueryWrapper (questionQueryRequest);
-        //新加一个当前用户条件
-        User loginUser = userService.getLoginUser (request.getSession ());
-        queryWrapper.eq (ObjectUtils.isNotEmpty (loginUser.getId ()),"userId",loginUser.getId ());
-        return queryWrapper;
+
     }
 
 }

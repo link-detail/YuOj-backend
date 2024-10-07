@@ -43,10 +43,4 @@ public interface QuestionService extends IService<Question> {
 
     Page<QuestionVO> getQuestionVOPage(Page<Question> page);
 
-    /**
-     *分页获取当前用户创建的资源列表
-     * @param questionQueryRequest
-     * @return
-     */
-    QueryWrapper<Question> getQueryWrapper(QuestionQueryRequest questionQueryRequest, HttpServletRequest request);
 }

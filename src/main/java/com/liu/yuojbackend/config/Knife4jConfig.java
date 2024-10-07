@@ -22,7 +22,7 @@ public class Knife4jConfig {
     public Docket defaultApi2() {
         return new Docket (DocumentationType.SWAGGER_2)
                 .apiInfo (new ApiInfoBuilder ()
-                        .title ("接口文档")
+                        .title ("yuoj接口文档")
                         .description ("YuOj-backend")
                         .version ("1.0")
                         .build ())

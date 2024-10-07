@@ -242,7 +242,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
          *         return false;
          */
         //下次就这么写
-        return user!=null && UserRoleEnum.ADMIN.getValue ().equals (user.getUserRole ());
+        return user!=null && UserRoleEnum.ADMIN.equals (user.getUserRole ());
+
+    }
+
+    /**
+     *  判断是否是管理员
+     * @param session
+     * @return
+     */
+    @Override
+    public boolean isAdmin(HttpSession session) {
+        User loginUser=(User)session.getAttribute (USER_LOGIN_STATE);
+        if (loginUser==null){
+            throw new BusinessException (ErrorCode.NOT_LOGIN_ERROR);
+        }
+        return isAdmin (loginUser);
 
     }
 
