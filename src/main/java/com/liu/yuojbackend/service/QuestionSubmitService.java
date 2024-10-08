@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.liu.yuojbackend.model.entity.User;
 import com.liu.yuojbackend.model.vo.questionsubmit.QuestionSubmitVO;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 /**
 * @author Administrator
@@ -34,14 +34,16 @@ public interface QuestionSubmitService extends IService<QuestionSubmit> {
 
     /**
      * 获取questionVO返回类
+     *
      * @param page
+     * @param session
      * @return
      */
 
-    Page<QuestionSubmitVO> getQuestionSubmitVOPage(Page<QuestionSubmit> page, HttpServletRequest request);
+    Page<QuestionSubmitVO> getQuestionSubmitVOPage(Page<QuestionSubmit> page, HttpSession session);
 
     /**
      * 获取返回类对象
      */
-    QuestionSubmitVO getQuestionSubmitVO(QuestionSubmit questionSubmit, HttpServletRequest request);
+    QuestionSubmitVO getQuestionSubmitVO(QuestionSubmit questionSubmit, HttpSession session);
 }

@@ -21,7 +21,7 @@ public enum QuestionSubmitStatusEnum {
 
     private final Integer value;
 
-    QuestionSubmitStatusEnum(String text, Integer value) {
+     QuestionSubmitStatusEnum(String text, Integer value) {
         this.text = text;
         this.value = value;
     }
@@ -60,5 +60,6 @@ public enum QuestionSubmitStatusEnum {
     public Integer getValue(){
         return value;
     }
+
 
 }

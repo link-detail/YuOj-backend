@@ -15,7 +15,6 @@ import com.liu.yuojbackend.model.entity.QuestionSubmit;
 import com.liu.yuojbackend.model.entity.User;
 import com.liu.yuojbackend.model.enums.QuestionSubmitLanguageEnum;
 import com.liu.yuojbackend.model.enums.QuestionSubmitStatusEnum;
-import com.liu.yuojbackend.model.vo.question.QuestionVO;
 import com.liu.yuojbackend.model.vo.questionsubmit.QuestionSubmitVO;
 import com.liu.yuojbackend.service.QuestionService;
 import com.liu.yuojbackend.service.QuestionSubmitService;
@@ -28,9 +27,8 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -67,7 +65,7 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         if (byId == null) {
             throw new BusinessException (ErrorCode.NOT_FOUND_ERROR);
         }
-        //todo 后续进行用户再次提交代码的操作
+        //设置提交题目信息
         QuestionSubmit questionSubmit = new QuestionSubmit ();
         questionSubmit.setUserId (loginUser.getId ());
         questionSubmit.setCode (questionSubmitAddRequest.getCode ());
@@ -88,7 +86,7 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
     @Override
     public QueryWrapper<QuestionSubmit> getQueryWrapper(QuestionSubmitQueryRequest questionSubmitQueryRequest) {
         QueryWrapper<QuestionSubmit> questionSubmitQueryWrapper = new QueryWrapper<> ();
-        if (questionSubmitQueryWrapper == null) {
+        if (questionSubmitQueryRequest == null) {
             return questionSubmitQueryWrapper;
         }
         Long userId = questionSubmitQueryRequest.getUserId ();
@@ -104,18 +102,22 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         //只有指定的等待条件才能进行查询
         questionSubmitQueryWrapper.eq (QuestionSubmitStatusEnum.getEnumByValue (status) != null, "status", status);
         //排序
-        questionSubmitQueryWrapper.orderBy (SqlUtils.validSortField (sortField), sortOrder.equals (CommonConstant.SORT_ORDER_ASC), sortField);
+        questionSubmitQueryWrapper.orderBy (
+                SqlUtils.validSortField (sortField),
+                sortOrder.equals (CommonConstant.SORT_ORDER_ASC),
+                sortField);
         return questionSubmitQueryWrapper;
 
 
     }
 
     @Override
-    public QuestionSubmitVO getQuestionSubmitVO(QuestionSubmit questionSubmit, HttpServletRequest request) {
+    public QuestionSubmitVO getQuestionSubmitVO(QuestionSubmit questionSubmit, HttpSession session) {
         QuestionSubmitVO questionSubmitVO = QuestionSubmitVO.objToVo (questionSubmit);
 
-        User loginUser = userService.getLoginUser (request.getSession ());
+        User loginUser = userService.getLoginUser (session);
 
+        //只有管理员或者是自己可以查看提交代码信息
         if (!loginUser.getId ().equals (questionSubmit.getUserId ()) && !userService.isAdmin (loginUser)) {
             questionSubmitVO.setCode (null);
         }
@@ -126,10 +128,11 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
      * 获取提交题目返回类
      *
      * @param page
+     * @param session
      * @return
      */
     @Override
-    public Page<QuestionSubmitVO> getQuestionSubmitVOPage(Page<QuestionSubmit> page, HttpServletRequest request) {
+    public Page<QuestionSubmitVO> getQuestionSubmitVOPage(Page<QuestionSubmit> page, HttpSession session) {
 //        //获取登录用户
 //        User loginUser = userService.getLoginUser (request);
 //        List<QuestionSubmit> questionSubmits = page.getRecords ();
@@ -174,9 +177,12 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         if (CollectionUtils.isEmpty(questionSubmitList)) {
             return questionSubmitVOPage;
         }
+
+        //
         List<QuestionSubmitVO> questionSubmitVOList = questionSubmitList.stream()
-                .map(questionSubmit -> getQuestionSubmitVO(questionSubmit, request))
+                .map(questionSubmit -> getQuestionSubmitVO(questionSubmit, session))
                 .collect(Collectors.toList());
+
         questionSubmitVOPage.setRecords(questionSubmitVOList);
         return questionSubmitVOPage;
     }

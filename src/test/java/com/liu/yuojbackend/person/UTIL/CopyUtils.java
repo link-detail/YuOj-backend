@@ -9,34 +9,43 @@ import java.util.stream.Collectors;
 
 /**
  * @author 刘渠好
- * @since 2024-10-07 22:58
- * 复制类
+ * @since 2024-10-08 21:14
+ * 复制工具类
  */
 public class CopyUtils {
     /**
      * 单体复制
      * @param source 源
-     * @param clazz 类
+     * @param clazz clazz
      */
-    public static <T> T copy(Object source,  Class<T> clazz) {
+
+    public static <T> T copy(Object source ,Class<T> clazz){
         if (source==null){
             return null;
         }
+        //获取类的实例化对象
         T obj;
         try {
-             obj = clazz.getDeclaredConstructor ().newInstance ();
-            //拷贝数据
-            BeanUtils.copyProperties (source,obj);
+            obj = clazz.getDeclaredConstructor ().newInstance ();
+            //复制拷贝数据
+            BeanUtils.copyProperties (source,clazz);
         } catch (Exception e) {
             return null;
         }
+
         return obj;
+
     }
 
-    public static <T> List<T> copyList(List<?> list,Class<T> clazz){
-        if (CollUtil.isEmpty (list)){
+    /**
+     * 多行复制
+     * @param source 源码
+     * @param clazz clazz
+     */
+    public static <T> List<T> copyList(List<?> source,Class<T> clazz){
+        if (CollUtil.isEmpty (source)){
             return new ArrayList<> ();
         }
-        return list.stream ().map (c->copy(c,clazz)).collect(Collectors.toList());
+       return source.stream ().map (c->copy(c,clazz)).collect(Collectors.toList());
     }
 }

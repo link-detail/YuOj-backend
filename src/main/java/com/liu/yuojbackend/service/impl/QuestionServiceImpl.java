@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -151,9 +152,9 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         if (CollectionUtils.isEmpty (questionList)) {
             return questionVOPage;
         }
-        //收集用户信息(set集合元素里的元素是不可以重复的，用来收集用户id很适合)
+//        收集用户信息(set集合元素里的元素是不可以重复的，用来收集用户id很适合)
         Set<Long> isSet = questionList.stream ().map (Question::getUserId).collect (Collectors.toSet ()); //收集用户id
-        //以id来存储每一个用户对象(id:对象)  根据id进行分组
+//        以id来存储每一个用户对象(id:对象)  根据id进行分组
         Map<Long, List<User>> userMap = userService.listByIds (isSet).stream ().collect (Collectors.groupingBy (User::getId));
         //关联用户信息
         List<QuestionVO> questionVOS = questionList.stream ().map (question -> {
@@ -229,7 +230,6 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
 //            return questionVO;
 //        }).collect(Collectors.toList());
 //        questionVOPage.setRecords(questionVOList);
-
 
     }
 

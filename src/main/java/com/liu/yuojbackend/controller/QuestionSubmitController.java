@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 /**
  * @Author 刘渠好
@@ -48,14 +49,14 @@ public class QuestionSubmitController {
      */
     @PostMapping("/")
     public BaseResponse<Long> doQuestionSubmit(@RequestBody QuestionSubmitAddRequest questionSubmitAddRequest,
-                                               HttpServletRequest request){
+                                               HttpSession session){
         Long questionId = questionSubmitAddRequest.getQuestionId ();
         //校验参数
-        if (questionSubmitAddRequest == null || questionId<=0){
+        if (questionSubmitAddRequest.getQuestionId () == null || questionId<=0){
             throw new BusinessException (ErrorCode.PARAMS_ERROR);
         }
         //当前用户
-        User loginUser = userService.getLoginUser (request.getSession ());
+        User loginUser = userService.getLoginUser (session);
         return ResultUtils.success (questionSubmitService.doQuestionSubmit(questionSubmitAddRequest,loginUser));
     }
 
@@ -63,7 +64,7 @@ public class QuestionSubmitController {
      * 分页获取题目提交列表(除了管理员之外，普通用户只能看到非答案，提交代码等公开信息)
      */
     @PostMapping("/list/page")
-    public BaseResponse<Page<QuestionSubmitVO>> listQuestionSubmitByPage(@RequestBody QuestionSubmitQueryRequest questionSubmitQueryRequest,HttpServletRequest request){
+    public BaseResponse<Page<QuestionSubmitVO>> listQuestionSubmitByPage(@RequestBody QuestionSubmitQueryRequest questionSubmitQueryRequest,HttpSession session){
         //获取分页信息
         long current = questionSubmitQueryRequest.getCurrent ();
         long pageSize = questionSubmitQueryRequest.getPageSize ();
@@ -71,7 +72,7 @@ public class QuestionSubmitController {
         ThrowUtils.throwIf (pageSize>=10,ErrorCode.PARAMS_ERROR);
         //查询
         Page<QuestionSubmit> page = questionSubmitService.page (new Page<> (current, pageSize), questionSubmitService.getQueryWrapper (questionSubmitQueryRequest));
-        return ResultUtils.success (questionSubmitService.getQuestionSubmitVOPage(page,request));
+        return ResultUtils.success (questionSubmitService.getQuestionSubmitVOPage(page,session));
 
 
     }
