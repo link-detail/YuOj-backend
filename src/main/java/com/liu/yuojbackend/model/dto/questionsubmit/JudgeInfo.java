@@ -16,6 +16,9 @@ public class JudgeInfo implements Serializable {
 
     private static final long serialVersionUID = 6103368208875849484L;
 
+    /**
+     * 比如说超时或者是内存溢出等
+     */
     private String message; //信息
 
     private Long time; //时间

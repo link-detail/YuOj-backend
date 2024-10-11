@@ -1,36 +1,19 @@
 package com.liu.yuojbackend.person.judge;
 
-import cn.hutool.core.date.DateTime;
-import cn.hutool.extra.tokenizer.engine.jcseg.JcsegEngine;
-import cn.hutool.json.JSONUtil;
-import com.liu.yuojbackend.config.JsonConfig;
-import com.liu.yuojbackend.judge.JudgeManager;
 import com.liu.yuojbackend.judge.JudgeService;
-import com.liu.yuojbackend.judge.JudgeServiceImpl;
 import com.liu.yuojbackend.judge.codesandbox.CodeSandBox;
-import com.liu.yuojbackend.judge.codesandbox.CodeSandBoxFactory;
-import com.liu.yuojbackend.judge.codesandbox.CodeSandboxProxy;
-import com.liu.yuojbackend.judge.codesandbox.model.ExecuteCodeRequest;
-import com.liu.yuojbackend.judge.codesandbox.model.ExecuteCodeResponse;
-import com.liu.yuojbackend.judge.strategy.JudgeContext;
-import com.liu.yuojbackend.model.dto.question.JudgeCase;
-import com.liu.yuojbackend.model.dto.question.JudgeConfig;
-import com.liu.yuojbackend.model.dto.questionsubmit.JudgeInfo;
-import com.liu.yuojbackend.model.entity.Question;
+import com.liu.yuojbackend.judge.codesandbox.factory.CodeSandBoxFactory;
+import com.liu.yuojbackend.judge.codesandbox.proxy.CodeSandboxProxy;
+import com.liu.yuojbackend.judge.model.ExecuteCodeRequest;
+import com.liu.yuojbackend.judge.model.ExecuteCodeResponse;
 import com.liu.yuojbackend.model.entity.QuestionSubmit;
 import com.liu.yuojbackend.model.enums.QuestionSubmitLanguageEnum;
 import com.liu.yuojbackend.service.QuestionService;
-import freemarker.core.JSONOutputFormat;
-import io.swagger.util.Json;
-import net.bytebuddy.matcher.ElementMatcher;
-import org.apache.tomcat.Jar;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
-import javax.swing.*;
 import java.util.Arrays;
 import java.util.List;
 

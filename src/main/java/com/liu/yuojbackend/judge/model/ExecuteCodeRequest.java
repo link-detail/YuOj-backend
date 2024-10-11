@@ -1,4 +1,4 @@
-package com.liu.yuojbackend.judge.codesandbox.model;
+package com.liu.yuojbackend.judge.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,12 +13,12 @@ import java.util.List;
  * 执行代码请求参数(代码沙箱)
  */
 @Data
-@Builder
+@Builder //链式注解
 @AllArgsConstructor
 @NoArgsConstructor
 public class ExecuteCodeRequest {
 
-    //输入
+    //输入用例
     private List<String> inputList;
 
     //代码

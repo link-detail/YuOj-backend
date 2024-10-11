@@ -1,9 +1,7 @@
-package com.liu.yuojbackend.judge;
+package com.liu.yuojbackend.judge.strategy;
 
-import com.liu.yuojbackend.judge.strategy.DefaultJudgeStrategy;
-import com.liu.yuojbackend.judge.strategy.JavaLanguageJudgeStrategy;
-import com.liu.yuojbackend.judge.strategy.JudgeContext;
-import com.liu.yuojbackend.judge.strategy.JudgeStrategy;
+import com.liu.yuojbackend.judge.strategy.impl.DefaultJudgeStrategy;
+import com.liu.yuojbackend.judge.strategy.impl.JavaLanguageJudgeStrategy;
 import com.liu.yuojbackend.model.dto.questionsubmit.JudgeInfo;
 import com.liu.yuojbackend.model.entity.QuestionSubmit;
 import org.springframework.stereotype.Service;
@@ -18,7 +16,7 @@ public class JudgeManager{
     /**
      * 执行判题
      */
-    JudgeInfo doJudge(JudgeContext judgeContext){
+    public JudgeInfo doJudge(JudgeContext judgeContext){
         //根据代码语言来选择策略模式
         QuestionSubmit questionSubmit = judgeContext.getQuestionSubmit ();
         String language = questionSubmit.getLanguage ();

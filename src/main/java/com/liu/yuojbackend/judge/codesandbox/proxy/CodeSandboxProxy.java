@@ -1,7 +1,8 @@
-package com.liu.yuojbackend.judge.codesandbox;
+package com.liu.yuojbackend.judge.codesandbox.proxy;
 
-import com.liu.yuojbackend.judge.codesandbox.model.ExecuteCodeRequest;
-import com.liu.yuojbackend.judge.codesandbox.model.ExecuteCodeResponse;
+import com.liu.yuojbackend.judge.codesandbox.CodeSandBox;
+import com.liu.yuojbackend.judge.model.ExecuteCodeRequest;
+import com.liu.yuojbackend.judge.model.ExecuteCodeResponse;
 import lombok.extern.slf4j.Slf4j;
 
 /**

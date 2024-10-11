@@ -1,8 +1,8 @@
 package com.liu.yuojbackend.judge.codesandbox.impl;
 
 import com.liu.yuojbackend.judge.codesandbox.CodeSandBox;
-import com.liu.yuojbackend.judge.codesandbox.model.ExecuteCodeRequest;
-import com.liu.yuojbackend.judge.codesandbox.model.ExecuteCodeResponse;
+import com.liu.yuojbackend.judge.model.ExecuteCodeRequest;
+import com.liu.yuojbackend.judge.model.ExecuteCodeResponse;
 import com.liu.yuojbackend.model.dto.questionsubmit.JudgeInfo;
 import com.liu.yuojbackend.model.enums.JudgeInfoMessageEnum;
 import com.liu.yuojbackend.model.enums.QuestionSubmitStatusEnum;

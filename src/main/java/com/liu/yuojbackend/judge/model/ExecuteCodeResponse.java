@@ -1,4 +1,4 @@
-package com.liu.yuojbackend.judge.codesandbox.model;
+package com.liu.yuojbackend.judge.model;
 
 import com.liu.yuojbackend.model.dto.questionsubmit.JudgeInfo;
 import lombok.AllArgsConstructor;
@@ -19,7 +19,7 @@ import java.util.List;
 @NoArgsConstructor  //无参构造函数
 public class ExecuteCodeResponse {
 
-    //输出
+    //输出用例
     private List<String> ouputList;
 
     //执行信息(其他信息 跟judgeInfo中的不一样)
