@@ -1,7 +1,7 @@
 package com.liu.yuojbackend.judge.strategy.impl;
 
 import cn.hutool.json.JSONUtil;
-import com.liu.yuojbackend.judge.strategy.JudgeContext;
+import com.liu.yuojbackend.judge.strategy.model.JudgeContext;
 import com.liu.yuojbackend.judge.strategy.JudgeStrategy;
 import com.liu.yuojbackend.model.dto.question.JudgeCase;
 import com.liu.yuojbackend.model.dto.question.JudgeConfig;
@@ -21,7 +21,6 @@ public class JavaLanguageJudgeStrategy implements JudgeStrategy {
     @Override
     public JudgeInfo doJudge(JudgeContext judgeContext) {
         //原题目信息跟代码沙箱执行之后返回的信息对比，来确定提交题目的答题信息
-        List<String> inputList = judgeContext.getInputList ();
         List<String> outputList = judgeContext.getOutputList ();
         JudgeInfo judgeInfo = judgeContext.getJudgeInfo ();
         //获取答题信息
@@ -32,18 +31,19 @@ public class JavaLanguageJudgeStrategy implements JudgeStrategy {
         JudgeInfo judgeResponse = new JudgeInfo ();
         judgeResponse.setMemory (memory);
         judgeResponse.setTime (time);
+        //获取原题目的输出用例
+        List<String> outCollect = judgeCases.stream ().map (JudgeCase::getOutput).collect (Collectors.toList ());
         //答题正确
         JudgeInfoMessageEnum judgeInfoMessageEnum = JudgeInfoMessageEnum.ACCEPTED;
         //判断题目的输入和输出数量是否一致
-        if (inputList.size ()!=outputList.size ()){
+        if (outCollect.size ()!=outputList.size ()){
             judgeInfoMessageEnum = JudgeInfoMessageEnum.WRONG_ANSWER;
             judgeResponse.setMessage (judgeInfoMessageEnum.getText ());
             return judgeResponse;
         }
-        //具体判断题目输入和答题输出结果是否一致
-        List<String> collect = judgeCases.stream ().map (JudgeCase::getOutput).collect (Collectors.toList ());
-        for (int i = 0; i < collect.size (); i++) {
-            String output = collect.get (i);
+        //具体判断题目输出和答题输出结果是否一致
+        for (int i = 0; i < outCollect.size (); i++) {
+            String output = outCollect.get (i);
             if (!outputList.get (i).equals (output)){
                 judgeInfoMessageEnum = JudgeInfoMessageEnum.WRONG_ANSWER;
                 judgeResponse.setMessage (judgeInfoMessageEnum.getText ());

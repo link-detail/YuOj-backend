@@ -31,6 +31,7 @@ public class ExampleCodeSandBox implements CodeSandBox {
         executeCodeResponse.setStatus (QuestionSubmitStatusEnum.SUCCEED.getValue ());
         JudgeInfo judgeInfo = new JudgeInfo ();
         judgeInfo.setMessage (JudgeInfoMessageEnum.ACCEPTED.getText ());
+        //设置代码运行的一些信息（内存，时间....）
         judgeInfo.setTime (100L);
         judgeInfo.setMemory (100L);
         executeCodeResponse.setJudgeInfo (judgeInfo);

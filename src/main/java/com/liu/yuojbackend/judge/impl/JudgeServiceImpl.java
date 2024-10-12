@@ -11,8 +11,8 @@ import com.liu.yuojbackend.judge.codesandbox.factory.CodeSandBoxFactory;
 import com.liu.yuojbackend.judge.codesandbox.proxy.CodeSandboxProxy;
 import com.liu.yuojbackend.judge.model.ExecuteCodeRequest;
 import com.liu.yuojbackend.judge.model.ExecuteCodeResponse;
-import com.liu.yuojbackend.judge.strategy.JudgeContext;
-import com.liu.yuojbackend.judge.strategy.JudgeManager;
+import com.liu.yuojbackend.judge.strategy.model.JudgeContext;
+import com.liu.yuojbackend.judge.strategy.manager.JudgeManager;
 import com.liu.yuojbackend.model.dto.question.JudgeCase;
 import com.liu.yuojbackend.model.dto.questionsubmit.JudgeInfo;
 import com.liu.yuojbackend.model.entity.Question;
@@ -90,7 +90,6 @@ public class JudgeServiceImpl implements JudgeService {
         JudgeInfo judgeInfo = executeCodeResponse.getJudgeInfo ();
         //5.根据代码沙箱的执行结果设置题目的判题状态和信息
         JudgeContext judgeContext = new JudgeContext ();
-//        judgeContext.setInputList (inputList);
         judgeContext.setOutputList (ouputList);
         judgeContext.setJudgeInfo (judgeInfo);
         judgeContext.setJudgeCases (JSONUtil.toList (question.getJudgeCase (),JudgeCase.class));

@@ -1,4 +1,4 @@
-package com.liu.yuojbackend.judge.strategy;
+package com.liu.yuojbackend.judge.strategy.model;
 
 import com.liu.yuojbackend.model.dto.question.JudgeCase;
 import com.liu.yuojbackend.model.dto.questionsubmit.JudgeInfo;
@@ -16,8 +16,6 @@ import java.util.List;
 @Data
 public class JudgeContext {
 
-    //题目的输入（原题目中的输入）
-//    private List<String> inputList;
 
     //题目的输出（代码沙箱）
     private List<String> outputList;
@@ -33,5 +31,6 @@ public class JudgeContext {
 
     //提交题目
     private QuestionSubmit questionSubmit;
+
 
 }

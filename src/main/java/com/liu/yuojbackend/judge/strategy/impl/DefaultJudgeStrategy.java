@@ -1,7 +1,7 @@
 package com.liu.yuojbackend.judge.strategy.impl;
 
 import cn.hutool.json.JSONUtil;
-import com.liu.yuojbackend.judge.strategy.JudgeContext;
+import com.liu.yuojbackend.judge.strategy.model.JudgeContext;
 import com.liu.yuojbackend.judge.strategy.JudgeStrategy;
 import com.liu.yuojbackend.model.dto.question.JudgeCase;
 import com.liu.yuojbackend.model.dto.question.JudgeConfig;
@@ -28,23 +28,25 @@ public class DefaultJudgeStrategy implements JudgeStrategy {
         Long memory = judgeInfo.getMemory (); //内存
         List<JudgeCase> judgeCases = judgeContext.getJudgeCases ();
         Question question = judgeContext.getQuestion ();
+        //返回更新之后的题目提交信息
         JudgeInfo judgeResponse = new JudgeInfo ();
         judgeResponse.setMemory (memory);
         judgeResponse.setTime (time);
         //默认是通过
         JudgeInfoMessageEnum judgeInfoMessageEnum = JudgeInfoMessageEnum.ACCEPTED;
 
-        List<String> collect = judgeCases.stream ().map (JudgeCase::getOutput).collect (Collectors.toList ());
+        //原题目的输出用例
+        List<String> outCollect = judgeCases.stream ().map (JudgeCase::getOutput).collect (Collectors.toList ());
 
         //判断输出数量是否一致
-        if (outputList.size ()!=collect.size ()){
+        if (outputList.size ()!=outCollect.size ()){
             judgeInfoMessageEnum = JudgeInfoMessageEnum.WRONG_ANSWER;
             judgeResponse.setMessage (judgeInfoMessageEnum.getText ());
             return judgeResponse;
         }
         //判断输出内容是否一致
-        for (int i = 0; i < collect.size (); i++) {
-            if (!collect.get (i).equals (outputList.get (i))){
+        for (int i = 0; i < outCollect.size (); i++) {
+            if (!outCollect.get (i).equals (outputList.get (i))){
                 judgeInfoMessageEnum = JudgeInfoMessageEnum.WRONG_ANSWER;
                 judgeResponse.setMessage (judgeInfoMessageEnum.getText ());
                 return judgeResponse;

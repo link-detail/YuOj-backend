@@ -1,11 +1,8 @@
 package com.liu.yuojbackend.person.test;
 
-import cn.hutool.json.JSONUtil;
 import com.liu.yuojbackend.model.dto.question.JudgeCase;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author 刘渠好
@@ -13,11 +10,17 @@ import java.util.List;
  */
 public class Demo1 {
     public static void main(String[] args) {
-        JudgeCase judgeCase = new JudgeCase ();
-        judgeCase.setInput ("1");
-        judgeCase.setOutput ("2");
-        judgeCase.setInput ("3");
-        judgeCase.setOutput ("4");
+        ArrayList<JudgeCase> cases = new ArrayList<> ();
+        JudgeCase judgeCase1 = new JudgeCase ();
+        judgeCase1.setInput ("1 2");
+        judgeCase1.setOutput ("3 4");
+        JudgeCase judgeCase2 = new JudgeCase ();
+        judgeCase2.setInput ("1 2");
+        judgeCase2.setOutput ("3 4");
+        cases.add (judgeCase1);
+        cases.add (judgeCase2);
+        System.out.println (cases);
+
 
     }
 }

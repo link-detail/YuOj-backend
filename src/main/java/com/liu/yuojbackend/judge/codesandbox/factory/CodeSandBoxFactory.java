@@ -4,7 +4,6 @@ import com.liu.yuojbackend.judge.codesandbox.CodeSandBox;
 import com.liu.yuojbackend.judge.codesandbox.impl.ExampleCodeSandBox;
 import com.liu.yuojbackend.judge.codesandbox.impl.RemoteCodeSandBox;
 import com.liu.yuojbackend.judge.codesandbox.impl.ThirdPartyCodeSandBox;
-import lombok.AllArgsConstructor;
 
 /**
  * @Author 刘渠好

@@ -1,5 +1,6 @@
 package com.liu.yuojbackend.judge.strategy;
 
+import com.liu.yuojbackend.judge.strategy.model.JudgeContext;
 import com.liu.yuojbackend.model.dto.questionsubmit.JudgeInfo;
 
 /**
