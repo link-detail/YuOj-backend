@@ -40,7 +40,7 @@ class CodeSandTest {
          CodeSandBox codeSandBox = CodeSandBoxFactory.newInstance (type);
         List<String> list = Arrays.asList ("1 2", "3 4");
          ExecuteCodeRequest build = ExecuteCodeRequest.builder ().code ("System.out.println (12);")
-                .language (QuestionSubmitLanguageEnum.GO.getText ())
+                .language (QuestionSubmitLanguageEnum.GO)
                 .inputList (list).build ();
         ExecuteCodeResponse executeCodeResponse = codeSandBox.executeCode (build);
         System.out.println (executeCodeResponse);
@@ -53,7 +53,7 @@ class CodeSandTest {
         CodeSandboxProxy codeSandboxProxy = new CodeSandboxProxy (codeSandBox);
         List<String> list = Arrays.asList ("1 2", "3 4");
         ExecuteCodeRequest build = ExecuteCodeRequest.builder ().code ("System.out.println (12);")
-                .language (QuestionSubmitLanguageEnum.GO.getText ())
+                .language (QuestionSubmitLanguageEnum.GO)
                 .inputList (list).build ();
         ExecuteCodeResponse executeCodeResponse = codeSandboxProxy.executeCode (build);
         System.out.println (executeCodeResponse);
@@ -62,7 +62,7 @@ class CodeSandTest {
 
     @Test
     void test03(){
-        QuestionSubmit questionSubmit = judgeService.doJudge (1815029258471759873L);
+        QuestionSubmit questionSubmit = judgeService.doJudge (1843667680341925890L);
         System.out.println (questionSubmit);
     }
 }

@@ -5,6 +5,7 @@ import com.liu.yuojbackend.judge.model.ExecuteCodeRequest;
 import com.liu.yuojbackend.judge.model.ExecuteCodeResponse;
 import com.liu.yuojbackend.model.dto.questionsubmit.JudgeInfo;
 import com.liu.yuojbackend.model.enums.JudgeInfoMessageEnum;
+import com.liu.yuojbackend.model.enums.QuestionSubmitLanguageEnum;
 import com.liu.yuojbackend.model.enums.QuestionSubmitStatusEnum;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,15 +27,20 @@ public class ExampleCodeSandBox implements CodeSandBox {
     public ExecuteCodeResponse executeCode(ExecuteCodeRequest executeCodeRequest) {
         ExecuteCodeResponse executeCodeResponse = new ExecuteCodeResponse ();
         List<String> inputList = executeCodeRequest.getInputList ();
-        executeCodeResponse.setOuputList (inputList);
-        executeCodeResponse.setMessage ("测试执行成功！");
-        executeCodeResponse.setStatus (QuestionSubmitStatusEnum.SUCCEED.getValue ());
+        QuestionSubmitLanguageEnum language = executeCodeRequest.getLanguage ();
+        log.info ("处理代码中，语言类似为{}",language.getValue ());
         JudgeInfo judgeInfo = new JudgeInfo ();
         judgeInfo.setMessage (JudgeInfoMessageEnum.ACCEPTED.getText ());
         //设置代码运行的一些信息（内存，时间....）
         judgeInfo.setTime (100L);
         judgeInfo.setMemory (100L);
-        executeCodeResponse.setJudgeInfo (judgeInfo);
-        return executeCodeResponse;
+
+        return executeCodeResponse
+                .builder ()
+                .judgeInfo (judgeInfo)
+                .ouputList (inputList)
+                .message ("测试执行成功!")
+                .status (QuestionSubmitStatusEnum.SUCCEED.getValue ())
+                .build ();
     }
 }

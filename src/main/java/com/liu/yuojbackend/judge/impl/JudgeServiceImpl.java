@@ -1,6 +1,7 @@
 package com.liu.yuojbackend.judge.impl;
 
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONUtil;
 import com.liu.yuojbackend.common.ErrorCode;
 import com.liu.yuojbackend.exception.BusinessException;
@@ -18,6 +19,7 @@ import com.liu.yuojbackend.model.dto.questionsubmit.JudgeInfo;
 import com.liu.yuojbackend.model.entity.Question;
 import com.liu.yuojbackend.model.entity.QuestionSubmit;
 import com.liu.yuojbackend.model.enums.JudgeInfoMessageEnum;
+import com.liu.yuojbackend.model.enums.QuestionSubmitLanguageEnum;
 import com.liu.yuojbackend.model.enums.QuestionSubmitStatusEnum;
 import com.liu.yuojbackend.service.QuestionService;
 import com.liu.yuojbackend.service.QuestionSubmitService;
@@ -61,10 +63,11 @@ public class JudgeServiceImpl implements JudgeService {
         if (question==null){
             throw new BusinessException (ErrorCode.NOT_FOUND_ERROR,"题目不存在!");
         }
-        //2.如果提交题目状态不是等待中，就不用重复执行
-        if (!questionSubmit.getStatus ().equals (QuestionSubmitStatusEnum.WAITING.getValue ())){
-            throw new BusinessException (ErrorCode.OPERATION_ERROR,"该题目正在判题中!");
-        }
+        //要是重复提交，就重复继续答题，不用在次数进行判断也行（自己的看法）
+//        //2.如果提交题目状态不是等待中，就不用重复执行
+//        if (!questionSubmit.getStatus ().equals (QuestionSubmitStatusEnum.WAITING.getValue ())){
+//            throw new BusinessException (ErrorCode.OPERATION_ERROR,"该题目正在判题中!");
+//        }
         //3.更改题目的状态
         QuestionSubmit questionSubmitUpdate = new QuestionSubmit ();
         questionSubmitUpdate.setId (questionSubmitId);
@@ -81,7 +84,7 @@ public class JudgeServiceImpl implements JudgeService {
         List<String> inputList = list.stream ().map (JudgeCase::getInput).collect (Collectors.toList ());
         ExecuteCodeRequest build = ExecuteCodeRequest.builder ().
                 code (questionSubmit.getCode ()).
-                language (questionSubmit.getLanguage ()).
+                language (QuestionSubmitLanguageEnum.getEnumByValue (questionSubmit.getLanguage ())).
                 inputList (inputList)
                 .build ();
         //代码沙箱执行结果
@@ -105,6 +108,12 @@ public class JudgeServiceImpl implements JudgeService {
         }
         //6.修改数据库中的判题结果
         questionSubmitResult.setId (questionSubmitId);
+        //题目提交数+1
+        Question question1 = new Question ();
+        question1.setId (questionSubmit.getQuestionId ());
+        question1.setSubmitNum (ObjectUtil.defaultIfNull (question1.getSubmitNum (),0)+1);
+        boolean update = questionService.updateById (question1);
+        ThrowUtils.throwIf (!update,ErrorCode.OPERATION_ERROR);
         questionSubmitResult.setJudgeInfo (JSONUtil.toJsonStr (judgeResponse));
         boolean b2 = questionSubmitService.updateById (questionSubmitResult);
         ThrowUtils.throwIf (!b2,ErrorCode.OPERATION_ERROR,"修改失败！");

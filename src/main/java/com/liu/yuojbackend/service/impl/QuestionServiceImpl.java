@@ -20,12 +20,9 @@ import com.liu.yuojbackend.service.UserService;
 import com.liu.yuojbackend.utils.SqlUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.format.number.PercentStyleFormatter;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -171,65 +168,6 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
 
         return questionVOPage;
 
-
-//        //收集用户id
-//        Set<Long> idSet = questionList.stream ().map (Question::getUserId).collect (Collectors.toSet ());
-//        //每一个id对应一个用户
-//        Map<Long, List<User>> userIdUserListMap = userService.listByIds (idSet).stream ().collect (Collectors.groupingBy (User::getId));
-//        //填充信息
-//        List<QuestionVO> questionVOS = questionList.stream ().map (question -> {
-//            QuestionVO questionVO = new QuestionVO ();
-//            BeanUtils.copyProperties (question, questionVO);
-//            questionVO.setTags (JSONUtil.toList (question.getTags (), String.class));
-//            questionVO.setJudgeConfig (JSONUtil.toBean (question.getJudgeConfig (), JudgeConfig.class));
-//            //关联用户信息
-//            if (userIdUserListMap.containsKey (question.getUserId ())) {
-//                User user = userIdUserListMap.get (question.getUserId ()).get (0);
-//                UserVO userVO = userService.getUserVO (user);
-//                questionVO.setUserVO (userVO);
-//            }
-//            return questionVO;
-//        }).collect (Collectors.toList ());
-//        return questionVOPage.setRecords (questionVOS);
-
-//        //收集信息(笨方法)
-//        List<QuestionVO> questionVOList =new ArrayList<> ();
-//        for (Question question : questionList) {
-//            QuestionVO questionVO = new QuestionVO ();
-//            BeanUtils.copyProperties (question,questionVO);
-//            //jso数据
-//            String tags = question.getTags ();
-//            questionVO.setTags (JSONUtil.toList (tags,String.class));
-//            String judgeConfig = question.getJudgeConfig ();
-//            questionVO.setJudgeConfig (JSONUtil.toBean (judgeConfig, JudgeConfig.class));
-//            //关联用户信息
-//            Long userId = question.getUserId ();
-//            User byId = userService.getById (userId);
-//            UserVO userVO= null;
-//            if (byId!=null){
-//                userVO=userService.getUserVO (byId);
-//            }
-//            questionVO.setUserVO (userVO);
-//            questionVOList.add (questionVO);
-//
-//        }
-//        questionVOPage.setRecords (questionVOList);
-//         1. 关联查询用户信息
-//        Set<Long> userIdSet = questionList.stream().map(Question::getUserId).collect(Collectors.toSet());//收集用户id
-//        Map<Long, List<User>> userIdUserListMap = userService.listByIds (userIdSet).stream ()
-//                .collect (Collectors.groupingBy (User::getId));
-//        // 填充信息
-//        List<QuestionVO> questionVOList = questionList.stream().map(question -> {
-//            QuestionVO questionVO = QuestionVO.objToVO (question);
-//            Long userId = question.getUserId();
-//            User user = null;
-//            if (userIdUserListMap.containsKey(userId)) {
-//                user = userIdUserListMap.get(userId).get(0);
-//            }
-//            questionVO.setUserVO(userService.getUserVO(user));
-//            return questionVO;
-//        }).collect(Collectors.toList());
-//        questionVOPage.setRecords(questionVOList);
 
     }
 
